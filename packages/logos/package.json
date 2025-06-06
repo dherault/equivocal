@@ -1,0 +1,25 @@
+{
+  "name": "logos",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/logos.umd.js",
+  "module": "./dist/logos.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/logos.es.js",
+      "require": "./dist/logos.umd.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5"
+  }
+}
