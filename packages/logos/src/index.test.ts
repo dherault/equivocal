@@ -54,10 +54,10 @@ describe('Inverting ifs', () => {
   test('Suggests inverting simple ifs', () => {
     const project = createProjectWithFile(`
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
         if (a > 0.5) {
-          console.log('Yes');
+          console.log('Yes')
         }
       }
     `)
@@ -66,5 +66,23 @@ describe('Inverting ifs', () => {
 
     expect(results).toHaveLength(1)
     expect(results[0].code).toBe('invert-if')
+  })
+
+  test('Does not suggest inverting ifs', () => {
+    const project = createProjectWithFile(`
+      function main() {
+        const a = Math.random()
+
+        if (a > 0.5) {
+          console.log('Yes')
+        }
+
+        console.log('No')
+      }
+    `)
+
+    const results = execute(project)
+
+    expect(results).toHaveLength(0)
   })
 })

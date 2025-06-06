@@ -1,7 +1,5 @@
 import type { SyntaxKind } from 'ts-morph'
 
-export type { Project, FunctionTypeNode } from 'ts-morph'
-
 export type Executor = {
   code: string
   name: string

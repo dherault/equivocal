@@ -1,7 +1,7 @@
 import { getTsconfig } from 'get-tsconfig'
-import { Project, SyntaxKind } from 'ts-morph'
+import { type IfStatement, Project, SyntaxKind } from 'ts-morph'
 
-import type { Executor, FunctionTypeNode, ResultItem } from './types'
+import type { Executor, ResultItem } from './types'
 
 export function createProject(tsConfigPath?: string, skipAddingFilesFromTsConfig = false) {
   const finalTsConfigPath = tsConfigPath || getTsconfig()?.path
@@ -26,17 +26,31 @@ const executors: Executor[] = [
   {
     code: 'invert-if',
     name: 'Invert Ifs',
-    on: SyntaxKind.FunctionDeclaration,
-    execute: (node: FunctionTypeNode) => {
-      const items: ResultItem[] = [
-        {
+    on: SyntaxKind.IfStatement,
+    execute: (node: IfStatement) => {
+      const items: ResultItem[] = []
+
+      if (node.getElseStatement()) return items
+      if (!node.getThenStatement()) return items
+
+      const parentChildren = node.getParent().getChildrenOfKind(SyntaxKind.SyntaxList)
+      const parentSyntaxList = parentChildren[0]
+
+      if (!parentSyntaxList) return items
+
+      const parentSyntaxListChildren = parentSyntaxList.getChildren()
+      const parentChildrenPosition = parentSyntaxListChildren.findIndex(x => x.getStart() === node.getStart() && x.getEnd() === node.getEnd())
+      const parentChildrenCount = parentSyntaxListChildren.length
+
+      if (parentChildrenPosition === parentChildrenCount - 1) {
+        items.push({
           code: 'invert-if',
           start: 0,
           end: 1,
           filePath: node.getSourceFile().getFilePath(),
           message: 'Invert if statement',
-        },
-      ]
+        })
+      }
 
       return items
     },
@@ -55,7 +69,7 @@ export function execute(project: Project) {
   const items: ResultItem[] = []
 
   project.getSourceFiles().forEach(sourceFile => {
-    sourceFile.forEachChild(node => {
+    sourceFile.forEachDescendant(node => {
       const executors = nodeTypeToExecutor[node.getKind()]
 
       if (!executors?.length) return
