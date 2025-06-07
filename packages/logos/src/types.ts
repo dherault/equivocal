@@ -1,10 +1,14 @@
-import type { SyntaxKind } from 'ts-morph'
+import type ts from 'typescript'
 
-export type Executor = {
+export type Project = {
+  sourceFiles: ts.SourceFile[]
+}
+
+export type Executor<T extends ts.Node = ts.Node> = {
   code: string
   name: string
-  on: SyntaxKind
-  execute: (node: any) => ResultItem[] | undefined
+  onKind: T['kind']
+  execute: (node: T) => ResultItem[] | undefined
 }
 
 export type ResultItem = {

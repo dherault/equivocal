@@ -1,15 +1,15 @@
-import type { Executor } from '../../types'
+import type { Executor } from '~types'
 
-import { executor as invertIfExecutor } from './invert-if'
+import { executor as invertIfExecutor } from '~execution/executors/invert-if'
 
 export const executors: Executor[] = [
-  invertIfExecutor,
+  invertIfExecutor as unknown as Executor,
 ]
 
-export const nodeTypeToExecutor: Partial<Record<Executor['on'], Executor[]>> = {}
+export const nodeKindToExecutor: Partial<Record<Executor['onKind'], Executor[]>> = {}
 
 executors.forEach(executor => {
-  if (!nodeTypeToExecutor[executor.on]) nodeTypeToExecutor[executor.on] = []
+  if (!nodeKindToExecutor[executor.onKind]) nodeKindToExecutor[executor.onKind] = []
 
-  nodeTypeToExecutor[executor.on]!.push(executor)
+  nodeKindToExecutor[executor.onKind]!.push(executor)
 })

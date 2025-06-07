@@ -2,9 +2,10 @@ import path from 'node:path'
 
 import { describe, expect, test } from '@jest/globals'
 
-import { addSourceFileToProject, createProject } from '../../project'
+import { execute } from '~execution/execute'
 
-import { execute } from '..'
+import { createProject } from '~project/createProject'
+import { addSourceFileToProject } from '~project/addSourceFileToProject'
 
 const NoFilesTsConfigPath = path.join(__dirname, '../../test-projects/no-files/tsconfig.json')
 
