@@ -1,4 +1,4 @@
-import type { Executor } from '../types'
+import type { Executor } from '../../types'
 
 import { executor as invertIfExecutor } from './invert-if'
 
