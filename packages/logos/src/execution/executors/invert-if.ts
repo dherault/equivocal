@@ -1,8 +1,11 @@
+import path from 'node:path'
+
 import ts, { type IfStatement, type SyntaxList } from 'typescript'
 
 import type { Executor, ResultItem } from '~types'
 
 import { getChildrenOfKind } from '~helpers/getChildrenOfKind'
+import { getLineNumber } from '~helpers/getLineNumber'
 
 const CODE = 'invert-if'
 
@@ -17,42 +20,45 @@ function execute(ifStatement: ts.IfStatement): ResultItem[] | undefined {
   if (ifStatement.elseStatement) return
   if (!ifStatement.thenStatement) return
 
-  const parentSyntaxListChildren = getChildrenOfKind<SyntaxList>(ifStatement.parent, ts.SyntaxKind.SyntaxList)
+  const parentSyntaxListChildren = getChildrenOfKind<SyntaxList>(ifStatement.parent, ts.SyntaxKind.SyntaxList)[0]?.getChildren()
 
-  console.log('parentSyntaxListChildren', parentSyntaxListChildren[0]?.getText())
-  // if (!parentSyntaxListChildren.length) return
+  if (!parentSyntaxListChildren?.length) return
 
-  // const parentChildrenPosition = parentSyntaxListChildren.findIndex(x => x.getStart() === ifStatement.getStart() && x.getEnd() === ifStatement.getEnd())
-  // const isLastChild = parentChildrenPosition === parentSyntaxListChildren.length - 1
+  const ifStart = ifStatement.getStart()
+  const ifEnd = ifStatement.getEnd()
+  const parentChildrenPosition = parentSyntaxListChildren.findIndex(x => x.getStart() === ifStart && x.getEnd() === ifEnd)
+  const isLastChild = parentChildrenPosition === parentSyntaxListChildren.length - 1
 
-  // if (isLastChild) return createItems(ifStatement)
+  if (isLastChild) return createItems(ifStatement)
 
-  // const nextSibling = parentSyntaxListChildren[parentChildrenPosition + 1]
+  const nextSibling = parentSyntaxListChildren[parentChildrenPosition + 1]
 
-  // if (!nextSibling) return
-  // if (nextSibling.getKind() !== SyntaxKind.ReturnStatement) return
+  if (!nextSibling) return
+  if (nextSibling.kind !== ts.SyntaxKind.ReturnStatement) return
 
-  // return createItems(ifStatement)
+  return createItems(ifStatement)
 }
 
-// function createItems(ifStatement: IfStatement): ResultItem[] {
+function createItems(ifStatement: IfStatement): ResultItem[] | undefined {
+  const keywordToken = ifStatement.getFirstToken()
 
-//   const sourceFile = ifStatement.getSourceFile()
-//   const ifKeyword = ifStatement.getChildrenOfKind(SyntaxKind.IfKeyword)[0]
+  if (!keywordToken) return
 
-//   return [
-//     {
-//       code: CODE,
-//       filePath: sourceFile.getFilePath(),
-//       relativeFilePath: sourceFile.getBaseName(),
-//       line: ifKeyword.getStartLineNumber(),
-//       start: ifKeyword.getStart(),
-//       end: ifKeyword.getEnd(),
-//       message: 'Invert if statement to reduce nesting.',
-//       fix: createFix(ifStatement),
-//     },
-//   ]
-// }
+  const sourceFile = ifStatement.getSourceFile()
+
+  return [
+    {
+      code: CODE,
+      filePath: sourceFile.fileName,
+      relativeFilePath: path.basename(sourceFile.fileName),
+      line: getLineNumber(ifStatement),
+      start: keywordToken.getStart(),
+      end: keywordToken.getEnd(),
+      message: 'Invert if statement to reduce nesting.',
+      // fix: createFix(ifStatement),
+    },
+  ]
+}
 
 // function createFix(ifStatement: IfStatement): ResultItemFix | undefined {
 //   const parent = ifStatement.getParent()

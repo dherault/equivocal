@@ -43,9 +43,13 @@ describe('Inverting ifs', () => {
     expect(results[0].fix).toBeDefined()
     expect(results[0].fix?.start).toBe(66)
     expect(results[0].fix?.end).toBe(120)
-    expect(results[0].fix?.content).toBe(`if (a <= 0.5) return
+    expect(results[0].fix?.content).toBe(`
+        const a = Math.random()
 
-console.log('Yes')`)
+        if (a <= 0.5) return
+
+        console.log('Yes')
+      `)
   })
 
   test('Suggests inverting simple ifs 2', () => {
