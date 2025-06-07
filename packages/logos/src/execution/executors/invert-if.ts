@@ -3,7 +3,6 @@ import { type IfStatement, SyntaxKind } from 'ts-morph'
 import type { Executor, ResultItem } from '../../types'
 
 const CODE = 'invert-if'
-const MESSAGE = 'Invert if statement to reduce nesting.'
 
 export const executor: Executor = {
   code: CODE,
@@ -40,7 +39,7 @@ function createItems(node: IfStatement): ResultItem[] {
       start: 0,
       end: 1,
       filePath: node.getSourceFile().getFilePath(),
-      message: MESSAGE,
+      message: 'Invert if statement to reduce nesting.',
     },
   ]
 }
