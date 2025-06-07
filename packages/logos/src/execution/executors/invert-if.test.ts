@@ -3,6 +3,7 @@ import path from 'node:path'
 import { describe, expect, test } from '@jest/globals'
 
 import { execute } from '~execution/execute'
+import { applyFix } from '~execution/applyFix'
 
 import { createProject } from '~project/createProject'
 import { addSourceFileToProject } from '~project/addSourceFileToProject'
@@ -22,10 +23,10 @@ describe('Inverting ifs', () => {
   test('Suggests inverting simple ifs 1', () => {
     const project = createProjectWithFile(`
       function main() {
-        const a = Math.random()
+        const a = Math.random();
 
         if (a > 0.5) {
-          console.log('Yes')
+          console.log('Yes');
         }
       }
     `)
@@ -38,18 +39,32 @@ describe('Inverting ifs', () => {
     expect(results[0].filePath).toMatch(/index.ts$/)
     expect(results[0].relativeFilePath).toBe('index.ts')
     expect(results[0].line).toBe(5)
-    expect(results[0].start).toBe(66)
-    expect(results[0].end).toBe(68)
+    expect(results[0].start).toBe(67)
+    expect(results[0].end).toBe(69)
     expect(results[0].fix).toBeDefined()
-    expect(results[0].fix?.start).toBe(66)
-    expect(results[0].fix?.end).toBe(120)
-    expect(results[0].fix?.content).toBe(`
-        const a = Math.random()
+    expect(results[0].fix?.start).toBe(23)
+    expect(results[0].fix?.end).toBe(129)
+    expect(results[0].fix?.content).toBe(`{
+        const a = Math.random();
 
-        if (a <= 0.5) return
+        if (a <= 0.5) {
+          return;
+        }
 
-        console.log('Yes')
-      `)
+        console.log("Yes");
+      }`)
+
+    expect(applyFix(project, results[0])).toBe(`
+      function main() {
+        const a = Math.random();
+
+        if (a <= 0.5) {
+          return;
+        }
+
+        console.log("Yes");
+      }
+    `)
   })
 
   test('Suggests inverting simple ifs 2', () => {

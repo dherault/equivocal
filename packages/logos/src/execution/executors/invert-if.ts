@@ -1,13 +1,17 @@
 import path from 'node:path'
 
-import ts, { type IfStatement, type SyntaxList } from 'typescript'
+import ts from 'typescript'
+import type { BinaryExpression, Expression, IfStatement, SyntaxList } from 'typescript'
 
-import type { Executor, ResultItem } from '~types'
+import type { Executor, ResultItem, ResultItemFix } from '~types'
 
-import { getChildrenOfKind } from '~helpers/getChildrenOfKind'
 import { getLineNumber } from '~helpers/getLineNumber'
+import { detectSyntaxListIndentation, detectTextTabSize } from '~helpers/detectIndentation'
+import { getFirstChildOfKind } from '~helpers/getFirstChildOfKind'
+import { postProcessPrinterOutput } from '~helpers/postProcessPrinterOutput'
 
 const CODE = 'invert-if'
+const MESSAGE = 'Invert if statement to reduce nesting.'
 
 export const executor: Executor<IfStatement> = {
   code: CODE,
@@ -20,7 +24,7 @@ function execute(ifStatement: ts.IfStatement): ResultItem[] | undefined {
   if (ifStatement.elseStatement) return
   if (!ifStatement.thenStatement) return
 
-  const parentSyntaxListChildren = getChildrenOfKind<SyntaxList>(ifStatement.parent, ts.SyntaxKind.SyntaxList)[0]?.getChildren()
+  const parentSyntaxListChildren = getFirstChildOfKind<SyntaxList>(ifStatement.parent, ts.SyntaxKind.SyntaxList)?.getChildren()
 
   if (!parentSyntaxListChildren?.length) return
 
@@ -49,127 +53,177 @@ function createItems(ifStatement: IfStatement): ResultItem[] | undefined {
   return [
     {
       code: CODE,
+      message: MESSAGE,
       filePath: sourceFile.fileName,
       relativeFilePath: path.basename(sourceFile.fileName),
       line: getLineNumber(ifStatement),
       start: keywordToken.getStart(),
       end: keywordToken.getEnd(),
-      message: 'Invert if statement to reduce nesting.',
-      // fix: createFix(ifStatement),
+      fix: createFix(ifStatement),
     },
   ]
 }
 
-// function createFix(ifStatement: IfStatement): ResultItemFix | undefined {
-//   const parent = ifStatement.getParent()
+function createFix(ifStatement: IfStatement): ResultItemFix | undefined {
+  const start = ifStatement.parent.getStart()
+  const end = ifStatement.parent.getEnd()
 
-//   if (!parent) return
+  const parentSyntaxList = getFirstChildOfKind<SyntaxList>(ifStatement.parent, ts.SyntaxKind.SyntaxList)
+  const binaryExpression = getFirstChildOfKind<BinaryExpression>(ifStatement, ts.SyntaxKind.BinaryExpression)
+  const thenSyntaxList = getFirstChildOfKind<SyntaxList>(ifStatement.thenStatement, ts.SyntaxKind.SyntaxList)
 
-//   const start = parent.getStart()
-//   const end = parent.getEnd()
+  if (!(parentSyntaxList && binaryExpression && thenSyntaxList)) return
 
-//   const binaryExpression = ifStatement.getChildrenOfKind(SyntaxKind.BinaryExpression)[0]
-//   const thenSyntaxList = ifStatement.getThenStatement()?.getChildrenOfKind(SyntaxKind.SyntaxList)[0]
+  const ifStart = ifStatement.getStart()
+  const ifEnd = ifStatement.getEnd()
+  const previousStatemeents = parentSyntaxList.getChildren().filter(child => child.getEnd() < ifStart && ts.isStatement(child)) as ts.Statement[]
+  const nextStatements = parentSyntaxList.getChildren().filter(child => child.getStart() > ifEnd && ts.isStatement(child)) as ts.Statement[]
+  const thenStatements = thenSyntaxList.getChildren().filter(child => ts.isStatement(child)) as ts.Statement[]
 
-//   if (!(binaryExpression && thenSyntaxList)) return
+  if (!nextStatements.length) nextStatements.push(ts.factory.createReturnStatement())
 
-//   invertBinaryExpression(binaryExpression)
+  const invertedIfStatement = ts.factory.updateIfStatement(
+    ifStatement,
+    invertBinaryExpression(binaryExpression),
+    ts.factory.createBlock(nextStatements),
+    undefined // No else statement
+  )
+  const nextBlock = ts.factory.createBlock([
+    ...previousStatemeents,
+    ts.factory.createEmptyStatement(),
+    invertedIfStatement,
+    ts.factory.createEmptyStatement(),
+    ...thenStatements,
+  ])
 
-//   ifStatement.setExpression(binaryExpression.getText())
+  const printer = ts.createPrinter()
+  const printedNode = printer.printNode(
+    ts.EmitHint.Unspecified,
+    nextBlock,
+    invertedIfStatement.getSourceFile(),
+  )
 
-//   return {
-//     start,
-//     end,
-//     content: ifStatement.getText(),
-//   }
-// }
+  return {
+    start,
+    end,
+    content: postProcessPrinterOutput(
+      printedNode,
+      detectSyntaxListIndentation(parentSyntaxList),
+      detectTextTabSize(printedNode),
+      detectTextTabSize(ifStatement.getSourceFile().getFullText()),
+      true,
+    ),
+  }
+}
 
-// function invertBinaryExpression(binaryExpression: BinaryExpression) {
-//   switch (binaryExpression.getOperatorToken().getKind()) {
-//     // ==
-//     case SyntaxKind.EqualsEqualsToken: {
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} != ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // ===
-//     case SyntaxKind.EqualsEqualsEqualsToken: {
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} !== ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // !=
-//     case SyntaxKind.ExclamationEqualsToken: {
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} == ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // !==
-//     case SyntaxKind.ExclamationEqualsEqualsToken: {
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} === ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // >
-//     case SyntaxKind.GreaterThanToken: {
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} <= ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // >=
-//     case SyntaxKind.GreaterThanEqualsToken: {
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} < ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // <
-//     case SyntaxKind.LessThanToken: {
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} >= ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // <=
-//     case SyntaxKind.LessThanEqualsToken: {
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} > ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // &&
-//     case SyntaxKind.AmpersandAmpersandToken: {
-//       // Apply De Morgan's law
-//       negateExpression(binaryExpression.getLeft())
-//       negateExpression(binaryExpression.getRight())
+function invertBinaryExpression(binaryExpression: BinaryExpression): Expression {
+  switch (binaryExpression.operatorToken.kind) {
+    // ==
+    case ts.SyntaxKind.EqualsEqualsToken: {
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        binaryExpression.left,
+        ts.factory.createToken(ts.SyntaxKind.ExclamationEqualsToken), // !=
+        binaryExpression.right,
+      )
+    }
+    // ===
+    case ts.SyntaxKind.EqualsEqualsEqualsToken: {
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        binaryExpression.left,
+        ts.factory.createToken(ts.SyntaxKind.ExclamationEqualsEqualsToken), // !==
+        binaryExpression.right,
+      )
+    }
+    // !=
+    case ts.SyntaxKind.ExclamationEqualsToken: {
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        binaryExpression.left,
+        ts.factory.createToken(ts.SyntaxKind.EqualsEqualsToken), // ==
+        binaryExpression.right,
+      )
+    }
+    // !==
+    case ts.SyntaxKind.ExclamationEqualsEqualsToken: {
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        binaryExpression.left,
+        ts.factory.createToken(ts.SyntaxKind.ExclamationEqualsEqualsToken), // ===
+        binaryExpression.right,
+      )
+    }
+    // >
+    case ts.SyntaxKind.GreaterThanToken: {
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        binaryExpression.left,
+        ts.factory.createToken(ts.SyntaxKind.LessThanEqualsToken), // <=
+        binaryExpression.right,
+      )
+    }
+    // >=
+    case ts.SyntaxKind.GreaterThanEqualsToken: {
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        binaryExpression.left,
+        ts.factory.createToken(ts.SyntaxKind.LessThanToken), // <
+        binaryExpression.right,
+      )
+    }
+    // <
+    case ts.SyntaxKind.LessThanToken: {
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        binaryExpression.left,
+        ts.factory.createToken(ts.SyntaxKind.GreaterThanEqualsToken), // >=
+        binaryExpression.right,
+      )
+    }
+    // <=
+    case ts.SyntaxKind.LessThanEqualsToken: {
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        binaryExpression.left,
+        ts.factory.createToken(ts.SyntaxKind.GreaterThanToken), // >
+        binaryExpression.right,
+      )
+    }
+    // &&
+    case ts.SyntaxKind.AmpersandAmpersandToken: {
+      // Apply De Morgan's law
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        negateExpression(binaryExpression.left),
+        ts.factory.createToken(ts.SyntaxKind.BarBarToken), // ||
+        negateExpression(binaryExpression.right),
+      )
+    }
+    // ||
+    case ts.SyntaxKind.BarBarToken: {
+      // Apply De Morgan's law
+      return ts.factory.updateBinaryExpression(
+        binaryExpression,
+        negateExpression(binaryExpression.left),
+        ts.factory.createToken(ts.SyntaxKind.AmpersandAmpersandToken), // ||
+        negateExpression(binaryExpression.right),
+      )
+    }
+    default: {
+      return ts.factory.createPrefixUnaryExpression(ts.SyntaxKind.ExclamationToken, binaryExpression)
+    }
+  }
+}
 
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} || ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // ||
-//     case SyntaxKind.BarBarToken: {
-//       // Apply De Morgan's law
-//       negateExpression(binaryExpression.getLeft())
-//       negateExpression(binaryExpression.getRight())
+function negateExpression(expression: Expression): Expression {
+  if (ts.isPrefixUnaryExpression(expression) && expression.operator === ts.SyntaxKind.ExclamationToken) {
+    return expression.operand
+  }
 
-//       binaryExpression.replaceWithText(`${binaryExpression.getLeft().getText()} && ${binaryExpression.getRight().getText()}`)
-//       break
-//     }
-//     // ??
-//     case SyntaxKind.QuestionQuestionToken: {
-//       binaryExpression.replaceWithText(`!(${binaryExpression.getLeft().getText()} ?? ${binaryExpression.getRight().getText()})`)
-//       break
-//     }
-//     default: {
-//       throw new Error(`Unsupported binary operator: ${binaryExpression.getOperatorToken().getKindName()}`)
-//     }
-//   }
-// }
+  if (ts.isBinaryExpression(expression)) {
+    return invertBinaryExpression(expression)
+  }
 
-// function negateExpression(expression: Expression) {
-//   if (Node.isPrefixUnaryExpression(expression)) {
-//     if (expression.getOperatorToken() === SyntaxKind.ExclamationToken) {
-//       expression.replaceWithText(expression.getOperand().getText())
-
-//       return
-//     }
-//   }
-
-//   if (Node.isBinaryExpression(expression)) {
-//     invertBinaryExpression(expression)
-
-//     return
-//   }
-
-//   // TODO remove parenthesis
-//   expression.replaceWithText(`!(${expression.getText()})`)
-// }
+  return ts.factory.createPrefixUnaryExpression(ts.SyntaxKind.ExclamationToken, ts.isParenthesizedExpression(expression) ? expression.expression : expression)
+}
