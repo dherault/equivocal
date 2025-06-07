@@ -1,6 +1,6 @@
 import { type IfStatement, SyntaxKind } from 'ts-morph'
 
-import type { Executor, ResultItem } from '../../types'
+import type { Executor, ResultItem, ResultItemFix } from '../../types'
 
 const CODE = 'invert-if'
 
@@ -33,13 +33,27 @@ function execute(node: IfStatement): ResultItem[] | undefined {
 }
 
 function createItems(node: IfStatement): ResultItem[] {
+  const sourceFile = node.getSourceFile()
+  const ifKeyword = node.getChildrenOfKind(SyntaxKind.IfKeyword)[0]
+
   return [
     {
       code: CODE,
-      start: 0,
-      end: 1,
-      filePath: node.getSourceFile().getFilePath(),
+      filePath: sourceFile.getFilePath(),
+      relativeFilePath: sourceFile.getBaseName(),
+      line: ifKeyword.getStartLineNumber(),
+      start: ifKeyword.getStart(),
+      end: ifKeyword.getEnd(),
       message: 'Invert if statement to reduce nesting.',
+      fix: createFix(node),
     },
   ]
+}
+
+function createFix(node: IfStatement): ResultItemFix {
+  return {
+    start: node.getStart(),
+    end: node.getEnd(),
+    content: 'foo',
+  }
 }

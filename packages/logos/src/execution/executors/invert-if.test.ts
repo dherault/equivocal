@@ -33,6 +33,12 @@ describe('Inverting ifs', () => {
 
     expect(results).toHaveLength(1)
     expect(results[0].code).toBe('invert-if')
+    expect(results[0].message).toBe('Invert if statement to reduce nesting.')
+    expect(results[0].filePath).toMatch(/index.ts$/)
+    expect(results[0].relativeFilePath).toBe('index.ts')
+    expect(results[0].line).toBe(5)
+    expect(results[0].start).toBe(66)
+    expect(results[0].end).toBe(68)
   })
 
   test('Suggests inverting simple ifs 2', () => {

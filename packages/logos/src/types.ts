@@ -10,12 +10,16 @@ export type Executor = {
 export type ResultItem = {
   code: string
   filePath: string
+  relativeFilePath: string
+  line: number
   start: number
   end: number
   message: string
-  fix?: {
-    start: number
-    end: number
-    content: string
-  }
+  fix?: ResultItemFix
+}
+
+export type ResultItemFix = {
+  start: number
+  end: number
+  content: string
 }
