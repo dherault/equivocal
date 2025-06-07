@@ -4,7 +4,7 @@ export type Executor = {
   code: string
   name: string
   on: SyntaxKind
-  execute: (node: any) => ResultItem[]
+  execute: (node: any) => ResultItem[] | undefined
 }
 
 export type ResultItem = {

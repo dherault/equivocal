@@ -11,9 +11,9 @@ export function execute(project: Project) {
     sourceFile.forEachDescendant(node => {
       const executors = nodeTypeToExecutor[node.getKind()]
 
-      if (!executors?.length) return
+      if (!executors) return
 
-      items.push(...executors.flatMap(executor => executor.execute(node)))
+      items.push(...executors.flatMap(executor => executor.execute(node)).filter(item => !!item))
     })
   })
 

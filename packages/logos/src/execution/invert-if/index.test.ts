@@ -80,6 +80,49 @@ describe('Inverting ifs', () => {
     expect(results[0].code).toBe('invert-if')
   })
 
+  test('Suggests inverting ifs with following return 1', () => {
+    const project = createProjectWithFile(`
+      function main() {
+        const a = Math.random()
+
+        if (a > 0.5) {
+          console.log('Yes')
+
+          return true
+        }
+
+        return false
+      }
+    `)
+
+    const results = execute(project)
+
+    expect(results).toHaveLength(1)
+    expect(results[0].code).toBe('invert-if')
+  })
+
+  test('Suggests inverting ifs with following return 2', () => {
+    const project = createProjectWithFile(`
+      function main() {
+        const a = Math.random()
+
+        if (a > 0.5) {
+          console.log('Yes')
+          console.log('Yes')
+
+          return true
+        }
+
+        return false
+      }
+    `)
+
+    const results = execute(project)
+
+    expect(results).toHaveLength(1)
+    expect(results[0].code).toBe('invert-if')
+  })
+
   test('Does not suggest inverting ifs 1', () => {
     const project = createProjectWithFile(`
       function main() {
@@ -116,4 +159,27 @@ describe('Inverting ifs', () => {
 
     expect(results).toHaveLength(0)
   })
+
+  test('Does not suggest inverting ifs 3', () => {
+    const project = createProjectWithFile(`
+      function main() {
+        const a = Math.random()
+
+        if (a > 0.5) {
+          console.log('Yes')
+
+          return true
+        }
+
+        console.log('No')
+
+        return false
+      }
+    `)
+
+    const results = execute(project)
+
+    expect(results).toHaveLength(0)
+  })
+
 })
