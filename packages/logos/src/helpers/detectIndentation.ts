@@ -2,6 +2,8 @@ import type { Node, SyntaxList } from 'typescript'
 
 import { getLineNumber } from '~helpers/getLineNumber'
 
+const INDENTATION_SIZES = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+
 export function detectNodeIndentation(node: Node) {
   const line = node.getSourceFile().getFullText().split('\n')[getLineNumber(node) - 1]
 
@@ -30,6 +32,8 @@ export function detectTextTabSize(text: string) {
     .filter(line => line.trim() !== '')
     .map(line => detectLineIndentation(line))
 
+  if (!indentations.length) return 0
+
   // Return max denominator of all indentations
-  return [16, 8, 4, 2, 1].filter(size => indentations.every(x => x % size === 0))[0] ?? 2
+  return INDENTATION_SIZES.filter(size => indentations.every(x => !!x && x % size === 0))[0] ?? 0
 }

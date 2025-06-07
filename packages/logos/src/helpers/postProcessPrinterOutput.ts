@@ -7,8 +7,9 @@ export function postProcessPrinterOutput(
   desiredTabSize: number,
   trimFirstLine = false,
 ) {
+  const emptyLineRegex = new RegExp(`^\\s{${baseIndentation}}$`, 'gm')
   const lines = output
-    .replace(/\s{4};\n/g, '\n') // Remove semicolons from ts.factory.createEmptyStatement()
+    .replace(emptyLineRegex, '\n') // Remove semicolons from ts.factory.createEmptyStatement()
     .split('\n')
 
   const firstIndentedLine = trimFirstLine ? lines[1] : lines[0]
@@ -21,11 +22,21 @@ export function postProcessPrinterOutput(
       if (i === 0 && trimFirstLine) return trimmedLine
       if (trimmedLine === '') return trimmedLine // Keep empty lines
 
-      const lineIndentation = detectLineIndentation(line)
-      const nTabs = lineIndentation / inputTabSize
-      const adjustedIndentation = baseIndentation - firstIndentation / inputTabSize + nTabs * desiredTabSize - 1
-
-      return ' '.repeat(adjustedIndentation) + trimmedLine
+      return adjustLineIndentation(line, baseIndentation, firstIndentation, inputTabSize, desiredTabSize)
     })
     .join('\n')
+}
+
+export function adjustLineIndentation(
+  line: string,
+  baseIndentation: number,
+  firstIndentation: number,
+  inputTabSize: number,
+  desiredTabSize: number
+) {
+  const lineIndentation = detectLineIndentation(line)
+  const nTabs = lineIndentation / inputTabSize
+  const adjustedIndentation = baseIndentation - firstIndentation / inputTabSize + nTabs * desiredTabSize - 1
+
+  return ' '.repeat(adjustedIndentation) + line.trim()
 }
