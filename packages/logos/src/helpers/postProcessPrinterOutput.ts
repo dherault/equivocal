@@ -28,7 +28,7 @@ export function adjustLineIndentation(
   desiredTabSize: number
 ) {
   const lineIndentation = detectLineIndentation(line)
-  const adjustedIndentation = baseIndentation + lineIndentation / (inputTabSize || 2) * desiredTabSize
+  const adjustedIndentation = baseIndentation + lineIndentation / (inputTabSize || desiredTabSize || 2) * (desiredTabSize || 2)
 
   return ' '.repeat(adjustedIndentation) + line.trim()
 }
