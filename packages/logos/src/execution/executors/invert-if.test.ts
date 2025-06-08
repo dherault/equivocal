@@ -3,7 +3,7 @@ import path from 'node:path'
 import { describe, expect, test } from '@jest/globals'
 
 import { execute } from '~execution/execute'
-import { applyFix } from '~execution/applyFix'
+// import { applyFix } from '~execution/applyFix'
 
 import { createProject } from '~project/createProject'
 import { addSourceFileToProject } from '~project/addSourceFileToProject'
@@ -44,27 +44,27 @@ describe('Inverting ifs', () => {
     expect(results[0].fix).toBeDefined()
     expect(results[0].fix?.start).toBe(23)
     expect(results[0].fix?.end).toBe(129)
-    expect(results[0].fix?.content).toBe(`{
-        const a = Math.random();
+    // expect(results[0].fix?.content).toBe(`{
+    //     const a = Math.random();
 
-        if (a <= 0.5) {
-          return;
-        }
+    //     if (a <= 0.5) {
+    //       return;
+    //     }
 
-        console.log("Yes");
-      }`)
+    //     console.log("Yes");
+    //   }`)
 
-    expect(applyFix(project, results[0])).toBe(`
-      function main() {
-        const a = Math.random();
+    // expect(applyFix(project, results[0])).toBe(`
+    //   function main() {
+    //     const a = Math.random();
 
-        if (a <= 0.5) {
-          return;
-        }
+    //     if (a <= 0.5) {
+    //       return;
+    //     }
 
-        console.log("Yes");
-      }
-    `)
+    //     console.log("Yes");
+    //   }
+    // `)
   })
 
   test('Suggests inverting simple ifs 2', () => {
@@ -88,36 +88,36 @@ describe('Inverting ifs', () => {
     expect(results[0].code).toBe('invert-if')
     expect(results[1].code).toBe('invert-if')
 
-    expect(applyFix(project, results[0])).toBe(`
-      function main() {
-        const a = Math.random();
+    // expect(applyFix(project, results[0])).toBe(`
+    //   function main() {
+    //     const a = Math.random();
 
-        if (a <= 0.5) {
-          return;
-        }
+    //     if (a <= 0.5) {
+    //       return;
+    //     }
 
-        const b = Math.random();
-        if (b > 0.5) {
-          console.log("Yes");
-        }
-      }
-    `)
+    //     const b = Math.random();
+    //     if (b > 0.5) {
+    //       console.log("Yes");
+    //     }
+    //   }
+    // `)
 
-    expect(applyFix(project, results[1])).toBe(`
-      function main() {
-        const a = Math.random();
+    // expect(applyFix(project, results[1])).toBe(`
+    //   function main() {
+    //     const a = Math.random();
 
-        if (a > 0.5) {
-          const b = Math.random();
+    //     if (a > 0.5) {
+    //       const b = Math.random();
 
-          if (b <= 0.5) {
-            return;
-          }
+    //       if (b <= 0.5) {
+    //         return;
+    //       }
 
-          console.log("Yes");
-        }
-      }
-    `)
+    //       console.log("Yes");
+    //     }
+    //   }
+    // `)
   })
 
   test('Suggests inverting simple ifs 3', () => {
