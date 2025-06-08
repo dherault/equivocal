@@ -7,3 +7,4 @@ Potential names:
 - cogito
 - refactor
 - elok
+- crapht
