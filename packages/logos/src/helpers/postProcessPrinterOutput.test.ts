@@ -11,6 +11,8 @@ describe('adjustLineIndentation', () => {
     expect(adjustLineIndentation('    const a = 1;', 2, 4, 4, 4)).toBe('    const a = 1;')
     expect(adjustLineIndentation('    const a = 1;', 2, 2, 4, 2)).toBe('  const a = 1;')
     expect(adjustLineIndentation('    const a = 1;', 2, 2, 2, 2)).toBe('    const a = 1;')
+    expect(adjustLineIndentation('   const a = 1;', 2, 2, 3, 2)).toBe('  const a = 1;')
+    expect(adjustLineIndentation('   const a = 1;', 2, 2, 3, 1)).toBe(' const a = 1;')
   })
 
 })
