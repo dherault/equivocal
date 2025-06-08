@@ -38,6 +38,13 @@ describe('detectTextTabSize', () => {
 `)).toBe(4)
     expect(detectTextTabSize(`
     const a = 1;
+    const b = 2;
+    if (a > b) {
+      return true;
+    }
+`)).toBe(2)
+    expect(detectTextTabSize(`
+    const a = 1;
 
     if (a > 0) {
       return;
