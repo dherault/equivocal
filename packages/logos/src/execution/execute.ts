@@ -11,7 +11,7 @@ export function execute(project: Project) {
     traverse(sourceFile, node => {
       items.push(
         ...nodeKindToExecutor[node.kind]
-          ?.flatMap(executor => executor.execute(node))
+          ?.flatMap(executor => executor.execute(project, node))
           .filter(item => !!item)
         ?? []
       )

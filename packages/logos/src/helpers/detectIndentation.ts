@@ -1,14 +1,7 @@
-import type { Node, SyntaxList } from 'typescript'
-
-import { getLineNumber } from '~helpers/getLineNumber'
+import type { SyntaxList } from 'typescript'
+import ts from 'typescript'
 
 const INDENTATION_SIZES = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-
-export function detectNodeIndentation(node: Node) {
-  const line = node.getSourceFile().getFullText().split('\n')[getLineNumber(node) - 1]
-
-  return detectLineIndentation(line)
-}
 
 export function detectLineIndentation(line: string) {
   let indentCount = 0
@@ -21,9 +14,16 @@ export function detectLineIndentation(line: string) {
 }
 
 export function detectSyntaxListIndentation(syntaxList: SyntaxList) {
-  const firstChild = syntaxList.getChildren()[0]
+  const line = syntaxList
+    .getChildren()
+    .find(child => child.kind !== ts.SyntaxKind.OpenBraceToken)
+    ?.getFullText()
+    .split('\n')
+    .find(line => line.trim() !== '')
 
-  return firstChild ? detectNodeIndentation(firstChild) : 0
+  if (!line) return 0
+
+  return detectLineIndentation(line)
 }
 
 export function detectTextTabSize(text: string) {

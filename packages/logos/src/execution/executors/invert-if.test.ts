@@ -44,15 +44,13 @@ describe('Inverting ifs', () => {
     expect(results[0].fix).toBeDefined()
     expect(results[0].fix?.start).toBe(23)
     expect(results[0].fix?.end).toBe(129)
-    // expect(results[0].fix?.content).toBe(`{
-    //     const a = Math.random();
-
-    //     if (a <= 0.5) {
-    //       return;
-    //     }
-
-    //     console.log("Yes");
-    //   }`)
+    expect(results[0].fix?.content).toBe(`{
+        const a = Math.random();
+        if (a <= 0.5) {
+          return;
+        }
+        console.log("Yes");
+      }`)
 
     // expect(applyFix(project, results[0])).toBe(`
     //   function main() {

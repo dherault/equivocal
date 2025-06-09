@@ -3,12 +3,11 @@ import path from 'node:path'
 import ts from 'typescript'
 import type { BinaryExpression, Expression, IfStatement, SyntaxList } from 'typescript'
 
-import type { Executor, ResultItem, ResultItemFix } from '~types'
+import type { Executor, Project, ResultItem, ResultItemFix } from '~types'
 
 import { getLineNumber } from '~helpers/getLineNumber'
-import { detectSyntaxListIndentation, detectTextTabSize } from '~helpers/detectIndentation'
 import { getFirstChildOfKind } from '~helpers/getFirstChildOfKind'
-import { postProcessPrinterOutput } from '~helpers/postProcessPrinterOutput'
+import { detectTextTabSize } from '~helpers/detectIndentation'
 
 const CODE = 'invert-if'
 const MESSAGE = 'Invert if statement to reduce nesting.'
@@ -20,7 +19,7 @@ export const executor: Executor<IfStatement> = {
   execute,
 }
 
-function execute(ifStatement: ts.IfStatement): ResultItem[] | undefined {
+function execute(project: Project, ifStatement: ts.IfStatement): ResultItem[] | undefined {
   if (ifStatement.elseStatement) return
   if (!ifStatement.thenStatement) return
 
@@ -33,17 +32,17 @@ function execute(ifStatement: ts.IfStatement): ResultItem[] | undefined {
   const parentChildrenPosition = parentSyntaxListChildren.findIndex(x => x.getStart() === ifStart && x.getEnd() === ifEnd)
   const isLastChild = parentChildrenPosition === parentSyntaxListChildren.length - 1
 
-  if (isLastChild) return createItems(ifStatement)
+  if (isLastChild) return createItems(project, ifStatement)
 
   const nextSibling = parentSyntaxListChildren[parentChildrenPosition + 1]
 
   if (!nextSibling) return
   if (nextSibling.kind !== ts.SyntaxKind.ReturnStatement) return
 
-  return createItems(ifStatement)
+  return createItems(project, ifStatement)
 }
 
-function createItems(ifStatement: IfStatement): ResultItem[] | undefined {
+function createItems(project: Project, ifStatement: IfStatement): ResultItem[] | undefined {
   const keywordToken = ifStatement.getFirstToken()
 
   if (!keywordToken) return
@@ -59,12 +58,12 @@ function createItems(ifStatement: IfStatement): ResultItem[] | undefined {
       line: getLineNumber(ifStatement),
       start: keywordToken.getStart(),
       end: keywordToken.getEnd(),
-      fix: createFix(ifStatement),
+      fix: createFix(project, ifStatement),
     },
   ]
 }
 
-function createFix(ifStatement: IfStatement): ResultItemFix | undefined {
+function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | undefined {
   const start = ifStatement.parent.getStart()
   const end = ifStatement.parent.getEnd()
 
@@ -76,7 +75,7 @@ function createFix(ifStatement: IfStatement): ResultItemFix | undefined {
 
   const ifStart = ifStatement.getStart()
   const ifEnd = ifStatement.getEnd()
-  const previousStatemeents = parentSyntaxList.getChildren().filter(child => child.getEnd() < ifStart && ts.isStatement(child)) as ts.Statement[]
+  const previousStatements = parentSyntaxList.getChildren().filter(child => child.getEnd() < ifStart && ts.isStatement(child)) as ts.Statement[]
   const nextStatements = parentSyntaxList.getChildren().filter(child => child.getStart() > ifEnd && ts.isStatement(child)) as ts.Statement[]
   const thenStatements = thenSyntaxList.getChildren().filter(child => ts.isStatement(child)) as ts.Statement[]
 
@@ -88,31 +87,37 @@ function createFix(ifStatement: IfStatement): ResultItemFix | undefined {
     ts.factory.createBlock(nextStatements),
     undefined // No else statement
   )
-  const nextBlock = ts.factory.createBlock([
-    ...previousStatemeents,
-    ts.factory.createEmptyStatement(),
+  const block = ts.factory.createBlock([
+    ...previousStatements,
     invertedIfStatement,
-    ts.factory.createEmptyStatement(),
     ...thenStatements,
   ])
 
-  const printer = ts.createPrinter()
-  const printedNode = printer.printNode(
+  const printedNode = project.printer.printNode(
     ts.EmitHint.Unspecified,
-    nextBlock,
+    block,
     invertedIfStatement.getSourceFile(),
   )
+
+  const sourceFileTabSize = detectTextTabSize(ifStatement.getSourceFile().getFullText())
+  const blockTabSize = detectTextTabSize(parentSyntaxList.getFullText())
+
+  console.log('x', sourceFileTabSize, blockTabSize)
+  // const nodeTabSize = detectTextTabSize(printedNode) || sourceFileTabSize
+  // const syntaxListIndentation = detectSyntaxListIndentation(parentSyntaxList)
+
+  // console.log(
+  //   'x',
+  //   JSON.stringify(printedNode),
+  //   syntaxListIndentation,
+  //   nodeTabSize,
+  //   sourceFileTabSize,
+  // )
 
   return {
     start,
     end,
-    content: postProcessPrinterOutput(
-      printedNode,
-      detectSyntaxListIndentation(parentSyntaxList),
-      detectTextTabSize(printedNode),
-      detectTextTabSize(ifStatement.getSourceFile().getFullText()),
-      true,
-    ),
+    content: printedNode,
   }
 }
 

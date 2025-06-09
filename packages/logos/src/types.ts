@@ -2,13 +2,14 @@ import type ts from 'typescript'
 
 export type Project = {
   sourceFiles: ts.SourceFile[]
+  printer: ts.Printer
 }
 
 export type Executor<T extends ts.Node = ts.Node> = {
   code: string
   name: string
   onKind: T['kind']
-  execute: (node: T) => ResultItem[] | undefined
+  execute: (project: Project, node: T) => ResultItem[] | undefined
 }
 
 export type ResultItem = {

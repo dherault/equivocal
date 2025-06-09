@@ -20,6 +20,7 @@ export function createProject(tsConfigPath?: string) {
 
   const project: Project = {
     sourceFiles: [],
+    printer: ts.createPrinter(),
   }
 
   const parsedCommandLine = ts.parseJsonConfigFileContent(
