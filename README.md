@@ -8,3 +8,8 @@ Potential names:
 - refactor
 - elok
 - crapht
+
+## TODO
+
+- Invert if
+- Redundant if
