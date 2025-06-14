@@ -14,7 +14,7 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run test:watch",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "jest",

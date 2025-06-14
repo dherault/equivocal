@@ -11,5 +11,7 @@ Potential names:
 
 ## TODO
 
-- Invert if
-- Redundant if
+- [x] Invert if on return
+- [ ] Invert if on continue
+- [ ] Invert if on break
+- [ ] Redundant if
