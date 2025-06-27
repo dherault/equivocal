@@ -3,7 +3,7 @@ import path from 'node:path'
 import { describe, expect, test } from '@jest/globals'
 
 import { execute } from '~execution/execute'
-// import { applyFix } from '~execution/applyFix'
+import { applyFix } from '~execution/applyFix'
 
 import { createProject } from '~project/createProject'
 import { addSourceFileToProject } from '~project/addSourceFileToProject'
@@ -18,7 +18,7 @@ function createProjectWithFile(fileContent: string) {
   return project
 }
 
-function expectInvertIf(code: string, cursors: number[] = []) {
+function expectInvertIf(code: string, cursors?: number[], fixedCode?: string, fixCursors?: number[], appliedFixedCode?: string) {
   const project = createProjectWithFile(code)
   const results = execute(project)
 
@@ -28,10 +28,24 @@ function expectInvertIf(code: string, cursors: number[] = []) {
   expect(results[0].filePath).toMatch(/index.ts$/)
   expect(results[0].relativeFilePath).toBe('index.ts')
 
-  if (cursors.length) {
+  if (cursors?.length) {
     expect(results[0].line).toBe(cursors[0])
     expect(results[0].start).toBe(cursors[1])
     expect(results[0].end).toBe(cursors[2])
+  }
+
+  if (fixedCode) {
+    expect(results[0].fix).toBeDefined()
+    expect(results[0].fix?.content).toBe(fixedCode)
+
+    if (fixCursors?.length) {
+      expect(results[0].fix?.start).toBe(fixCursors[0])
+      expect(results[0].fix?.end).toBe(fixCursors[1])
+    }
+
+    if (appliedFixedCode) {
+      expect(applyFix(project, results[0])).toBe(appliedFixedCode)
+    }
   }
 }
 
@@ -45,39 +59,33 @@ function expectNoInvertIf(code: string) {
 describe('Inverting ifs', () => {
 
   test('Suggests inverting simple ifs 1', () => {
-    expectInvertIf(`
-      function main() {
-        const a = Math.random();
+    expectInvertIf(
+      `
+        function main() {
+          const a = Math.random();
 
-        if (a > 0.5) {
-          console.log('Yes');
+          if (a > 0.5) {
+            console.log('Yes');
+          }
         }
-      }
-    `,
-    [5, 67, 69]
+      `,
+      [5, 73, 75],
+      `{
+    const a = Math.random();
+    if (a <= 0.5)
+        return;
+    console.log("Yes");
+}`,
+      [25, 141],
+      `
+        function main() {
+    const a = Math.random();
+    if (a <= 0.5)
+        return;
+    console.log("Yes");
+}
+      `
     )
-    // expect(results[0].fix).toBeDefined()
-    // expect(results[0].fix?.start).toBe(23)
-    // expect(results[0].fix?.end).toBe(129)
-    // expect(results[0].fix?.content).toBe(`{
-    //     const a = Math.random();
-    //     if (a <= 0.5) {
-    //       return;
-    //     }
-    //     console.log("Yes");
-    //   }`)
-
-    // expect(applyFix(project, results[0])).toBe(`
-    //   function main() {
-    //     const a = Math.random();
-
-    //     if (a <= 0.5) {
-    //       return;
-    //     }
-
-    //     console.log("Yes");
-    //   }
-    // `)
   })
 
   test('Suggests inverting nested ifs 1', () => {
