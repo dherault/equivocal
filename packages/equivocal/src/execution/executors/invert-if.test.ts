@@ -77,8 +77,7 @@ describe('Inverting ifs', () => {
     const a = Math.random();
     // b is seprated from a by one empty line
     const b = Math.random();
-    if (a <= b)
-        return;
+    if (a <= b) return;
     console.log('Yes');
 }`,
       [25, 227],
@@ -87,8 +86,7 @@ describe('Inverting ifs', () => {
     const a = Math.random();
     // b is seprated from a by one empty line
     const b = Math.random();
-    if (a <= b)
-        return;
+    if (a <= b) return;
     console.log('Yes');
 }
       `

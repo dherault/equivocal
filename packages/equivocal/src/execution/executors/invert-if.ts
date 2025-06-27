@@ -7,6 +7,7 @@ import type { Executor, Project, ResultItem, ResultItemFix } from '~types'
 
 import { getLineNumber } from '~helpers/getLineNumber'
 import { getFirstChildOfKind } from '~helpers/getFirstChildOfKind'
+import { formatIfStatements } from '~helpers/formatIfStatements'
 
 const CODE = 'invert-if'
 const MESSAGE = 'Invert if statement to reduce nesting.'
@@ -99,7 +100,7 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
   return {
     start,
     end,
-    content: printedNode,
+    content: formatIfStatements(printedNode),
   }
 }
 
