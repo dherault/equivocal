@@ -34,19 +34,19 @@ function expectInvertIf(code: string, cursors?: number[], fixedCode?: string, fi
     expect(results[0].end).toBe(cursors[2])
   }
 
-  if (fixedCode) {
-    expect(results[0].fix).toBeDefined()
-    expect(results[0].fix?.content).toBe(fixedCode)
+  if (!fixedCode) return
 
-    if (fixCursors?.length) {
-      expect(results[0].fix?.start).toBe(fixCursors[0])
-      expect(results[0].fix?.end).toBe(fixCursors[1])
-    }
+  expect(results[0].fix).toBeDefined()
+  expect(results[0].fix?.content).toBe(fixedCode)
 
-    if (appliedFixedCode) {
-      expect(applyFix(project, results[0])).toBe(appliedFixedCode)
-    }
+  if (fixCursors?.length) {
+    expect(results[0].fix?.start).toBe(fixCursors[0])
+    expect(results[0].fix?.end).toBe(fixCursors[1])
   }
+
+  if (!appliedFixedCode) return
+
+  expect(applyFix(project, results[0])).toBe(appliedFixedCode)
 }
 
 // function expectNoInvertIf(code: string) {
