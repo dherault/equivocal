@@ -93,7 +93,7 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
   const printedNode = project.printer.printNode(
     ts.EmitHint.Unspecified,
     block,
-    invertedIfStatement.getSourceFile(),
+    ifStatement.getSourceFile(),
   )
 
   return {
