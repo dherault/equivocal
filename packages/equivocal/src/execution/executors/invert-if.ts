@@ -79,12 +79,11 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
 
   if (!nextStatements.length) nextStatements.push(ts.factory.createReturnStatement())
 
-  const invertedIfStatement = ts.factory.updateIfStatement(
-    ifStatement,
+  const invertedIfStatement = ts.factory.createIfStatement(
     invertBinaryExpression(binaryExpression),
     nextStatements.length > 1 ? ts.factory.createBlock(nextStatements) : nextStatements[0],
-    undefined // No else statement
-  )
+  ) // No else statement
+
   const block = ts.factory.createBlock([
     ...previousStatements,
     invertedIfStatement,

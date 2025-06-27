@@ -1,6 +1,7 @@
+import ts from 'typescript'
 import { describe, expect, test } from '@jest/globals'
 
-import { detectLineIndentation, detectTextTabSize } from '~helpers/detectIndentation'
+import { detectBlockIndentation, detectLineIndentation, detectTextTabSize } from '~helpers/detectIndentation'
 
 describe('detectLineIndentation', () => {
 
@@ -52,4 +53,32 @@ describe('detectTextTabSize', () => {
 `)).toBe(2)
   })
 
+})
+
+describe('detectBlockIndentation', () => {
+  test('Detects indentation of block 1', () => {
+    const source = `
+      function main() {
+        const a = 1;
+        const b = 2;
+      }
+    `
+    const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.ESNext, true)
+    const block = (sourceFile.statements[0] as ts.FunctionDeclaration).body!
+
+    expect(detectBlockIndentation(block)).toBe(8)
+  })
+
+  test('Detects indentation of block 2', () => {
+    const source = `
+function main() {
+  const a = 1;
+  const b = 2;
+}
+    `
+    const sourceFile = ts.createSourceFile('test.ts', source, ts.ScriptTarget.ESNext, true)
+    const block = (sourceFile.statements[0] as ts.FunctionDeclaration).body!
+
+    expect(detectBlockIndentation(block)).toBe(2)
+  })
 })

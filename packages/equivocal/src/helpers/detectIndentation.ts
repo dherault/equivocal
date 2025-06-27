@@ -1,5 +1,7 @@
-import type { SyntaxList } from 'typescript'
 import ts from 'typescript'
+import type { SyntaxList } from 'typescript'
+
+import { getFirstChildOfKind } from '~helpers/getFirstChildOfKind'
 
 const INDENTATION_SIZES = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
 
@@ -11,6 +13,12 @@ export function detectLineIndentation(line: string) {
   }
 
   return indentCount
+}
+
+export function detectBlockIndentation(block: ts.Block) {
+  const syntaxList = getFirstChildOfKind<SyntaxList>(block, ts.SyntaxKind.SyntaxList)
+
+  return syntaxList ? detectSyntaxListIndentation(syntaxList) : 0
 }
 
 export function detectSyntaxListIndentation(syntaxList: SyntaxList) {
