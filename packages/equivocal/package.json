@@ -1,13 +1,13 @@
 {
-  "name": "logos",
+  "name": "equivocal",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/logos.umd.js",
-  "module": "./dist/logos.es.js",
+  "main": "./dist/equivocal.umd.js",
+  "module": "./dist/equivocal.es.js",
   "exports": {
     ".": {
-      "import": "./dist/logos.es.js",
-      "require": "./dist/logos.umd.js"
+      "import": "./dist/equivocal.es.js",
+      "require": "./dist/equivocal.umd.js"
     }
   },
   "files": [
@@ -25,9 +25,9 @@
     "typescript": "~5.8.3"
   },
   "devDependencies": {
-    "@jest/globals": "^30.0.0",
-    "jest": "^30.0.0",
+    "@jest/globals": "^30.0.3",
+    "jest": "^30.0.3",
     "ts-jest": "^29.4.0",
-    "vite": "^6.3.5"
+    "vite": "^7.0.0"
   }
 }

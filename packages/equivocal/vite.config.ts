@@ -5,8 +5,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src/index.ts',
-      name: 'Logos',
-      fileName: format => `logos.${format}.js`,
+      name: 'equivocal',
+      fileName: format => `equivocal.${format}.js`,
     },
     rollupOptions: {
       external: [],
