@@ -30,7 +30,11 @@ export function createProject(tsConfigPath?: string) {
   )
 
   parsedCommandLine.fileNames.forEach(filePath => {
-    addSourceFileToProject(project, filePath, ts.sys.readFile(filePath) || '')
+    const fileContent = ts.sys.readFile(filePath)
+
+    if (!fileContent) return
+
+    addSourceFileToProject(project, filePath, fileContent)
   })
 
   return project
