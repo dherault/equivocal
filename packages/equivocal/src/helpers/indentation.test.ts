@@ -2,7 +2,7 @@ import ts from 'typescript'
 import { describe, expect, test } from '@jest/globals'
 
 import { appendIndentation, detectLineIndentation, detectSyntaxListIndentation, detectTextTabSize, replaceIndentation } from '~helpers/indentation'
-import { getFirstChildOfKind } from '~helpers/getFirstChildOfKind'
+import { getFirstChildOfKind } from '~helpers/children'
 
 describe('detectLineIndentation', () => {
 

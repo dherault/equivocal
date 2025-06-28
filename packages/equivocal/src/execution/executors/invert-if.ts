@@ -6,7 +6,7 @@ import type { BinaryExpression, Expression, IfStatement, SyntaxList } from 'type
 import type { Executor, Project, ResultItem, ResultItemFix } from '~types'
 
 import { getLineNumber } from '~helpers/getLineNumber'
-import { getFirstChildOfKind } from '~helpers/getFirstChildOfKind'
+import { getFirstChildOfKind } from '~helpers/children'
 import { formatIfStatements } from '~helpers/formatIfStatements'
 import { appendIndentation, detectSyntaxListIndentation, detectTextTabSize, replaceIndentation } from '~helpers/indentation'
 
