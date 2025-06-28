@@ -3,6 +3,7 @@ import { describe, expect, test } from '@jest/globals'
 import { formatIfStatements } from '~helpers/formatIfStatements'
 
 describe('formatIfStatements', () => {
+
   test('should format if statements correctly 1', () => {
     const code = `
       function main() {
@@ -75,4 +76,5 @@ describe('formatIfStatements', () => {
 
     expect(formatIfStatements(code)).toBe(formattedCode)
   })
+
 })

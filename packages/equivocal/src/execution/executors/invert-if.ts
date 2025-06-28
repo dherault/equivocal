@@ -8,6 +8,7 @@ import type { Executor, Project, ResultItem, ResultItemFix } from '~types'
 import { getLineNumber } from '~helpers/getLineNumber'
 import { getFirstChildOfKind } from '~helpers/getFirstChildOfKind'
 import { formatIfStatements } from '~helpers/formatIfStatements'
+import { appendIndentation, detectSyntaxListIndentation, detectTextTabSize, replaceIndentation } from '~helpers/indentation'
 
 const CODE = 'invert-if'
 const MESSAGE = 'Invert if statement to reduce nesting.'
@@ -91,16 +92,23 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
     ...thenStatements,
   ])
 
-  const printedNode = project.printer.printNode(
+  let content = project.printer.printNode(
     ts.EmitHint.Unspecified,
     block,
     ifStatement.getSourceFile(),
   )
 
+  const tabSize = detectTextTabSize(ifStatement.getSourceFile().getText())
+  const indentation = detectSyntaxListIndentation(parentSyntaxList)
+
+  content = formatIfStatements(content)
+  content = replaceIndentation(content, 4, tabSize)
+  content = appendIndentation(content, indentation - tabSize, true)
+
   return {
     start,
     end,
-    content: formatIfStatements(printedNode),
+    content,
   }
 }
 

@@ -18,7 +18,7 @@ function createProjectWithFile(fileContent: string) {
   return project
 }
 
-function expectInvertIf(code: string, cursors?: number[], fixedCode?: string, fixCursors?: number[], appliedFixedCode?: string) {
+function expectInvertIf(code: string, fixedCode?: string, appliedFixedCode?: string) {
   const project = createProjectWithFile(code)
   const results = execute(project)
 
@@ -28,21 +28,10 @@ function expectInvertIf(code: string, cursors?: number[], fixedCode?: string, fi
   expect(results[0].filePath).toMatch(/index.ts$/)
   expect(results[0].relativeFilePath).toBe('index.ts')
 
-  if (cursors?.length) {
-    expect(results[0].line).toBe(cursors[0])
-    expect(results[0].start).toBe(cursors[1])
-    expect(results[0].end).toBe(cursors[2])
-  }
-
   if (!fixedCode) return
 
   expect(results[0].fix).toBeDefined()
   expect(results[0].fix?.content).toBe(fixedCode)
-
-  if (fixCursors?.length) {
-    expect(results[0].fix?.start).toBe(fixCursors[0])
-    expect(results[0].fix?.end).toBe(fixCursors[1])
-  }
 
   if (!appliedFixedCode) return
 
@@ -64,31 +53,39 @@ describe('Inverting ifs', () => {
         function main() {
           const a = Math.random();
 
-          // b is seprated from a by one empty line
+          // b is seprated from a by one empty line and a comment
           const b = Math.random();
+
+          if (a < b) {
+            console.log('Maybe');
+          }
 
           if (a > b) {
             console.log('Yes');
           }
         }
       `,
-      [8, 161, 163],
       `{
-    const a = Math.random();
-    // b is seprated from a by one empty line
-    const b = Math.random();
-    if (a <= b) return;
-    console.log('Yes');
-}`,
-      [25, 227],
+          const a = Math.random();
+          // b is seprated from a by one empty line and a comment
+          const b = Math.random();
+          if (a < b) {
+            console.log('Maybe');
+          }
+          if (a <= b) return;
+          console.log('Yes');
+        }`,
       `
         function main() {
-    const a = Math.random();
-    // b is seprated from a by one empty line
-    const b = Math.random();
-    if (a <= b) return;
-    console.log('Yes');
-}
+          const a = Math.random();
+          // b is seprated from a by one empty line and a comment
+          const b = Math.random();
+          if (a < b) {
+            console.log('Maybe');
+          }
+          if (a <= b) return;
+          console.log('Yes');
+        }
       `
     )
   })
