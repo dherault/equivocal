@@ -7,6 +7,7 @@ import type { Executor, Project, ResultItem, ResultItemFix } from '~types'
 
 import { getLineNumber } from '~helpers/getLineNumber'
 import { getFirstChildOfKind } from '~helpers/children'
+import { applySpacing, extractSpacing } from '~helpers/spacing'
 import { formatIfStatements } from '~helpers/formatIfStatements'
 import { appendIndentation, detectSyntaxListIndentation, detectTextTabSize, replaceIndentation } from '~helpers/indentation'
 
@@ -91,6 +92,9 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
     invertedIfStatement,
     ...thenStatements,
   ])
+  const tabSize = detectTextTabSize(ifStatement.getSourceFile().getText())
+  const indentation = detectSyntaxListIndentation(parentSyntaxList)
+  const spacings = extractSpacing(ifStatement.parent.getText())
 
   let content = project.printer.printNode(
     ts.EmitHint.Unspecified,
@@ -98,12 +102,10 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
     ifStatement.getSourceFile(),
   )
 
-  const tabSize = detectTextTabSize(ifStatement.getSourceFile().getText())
-  const indentation = detectSyntaxListIndentation(parentSyntaxList)
-
   content = formatIfStatements(content)
   content = replaceIndentation(content, 4, tabSize)
   content = appendIndentation(content, indentation - tabSize, true)
+  content = applySpacing(content, spacings)
 
   return {
     start,

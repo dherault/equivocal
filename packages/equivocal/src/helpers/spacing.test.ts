@@ -4,7 +4,7 @@ import { type Spacing, applySpacing, extractSpacing } from '~helpers/spacing'
 
 describe('extractSpacing', () => {
 
-  test('Extracts spacing from code correctly', () => {
+  test('Extracts spacing from code correctly 1', () => {
     const code = `
       function main() {
         const a = Math.random();
@@ -29,6 +29,52 @@ describe('extractSpacing', () => {
       {
         code: `        if (a <= b) {
           return;
+        }`,
+        emptyLinesAfter: 1,
+      },
+      {
+        code: `        if (a > b) {
+          console.log('Yes');
+        }
+      }`,
+        emptyLinesAfter: 1,
+      },
+    ]
+
+    expect(extractSpacing(code)).toEqual(expected)
+  })
+
+  test('Extracts spacing from code correctly 2', () => {
+    const code = `
+      {
+        const a = Math.random();
+
+        // b is seprated from a by one empty line and a comment
+        const b = Math.random();
+
+        if (a < b) {
+          console.log('Maybe');
+        }
+
+        if (a > b) {
+          console.log('Yes');
+        }
+      }
+    `
+    const expected: Spacing[] = [
+      {
+        code: `      {
+        const a = Math.random();`,
+        emptyLinesAfter: 1,
+      },
+      {
+        code: `        // b is seprated from a by one empty line and a comment
+        const b = Math.random();`,
+        emptyLinesAfter: 1,
+      },
+      {
+        code: `        if (a < b) {
+          console.log('Maybe');
         }`,
         emptyLinesAfter: 1,
       },

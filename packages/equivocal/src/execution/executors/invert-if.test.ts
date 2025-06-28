@@ -67,81 +67,88 @@ describe('Inverting ifs', () => {
       `,
       `{
           const a = Math.random();
+
           // b is seprated from a by one empty line and a comment
           const b = Math.random();
+
           if (a < b) {
             console.log('Maybe');
           }
-          if (a <= b) return;
-          console.log('Yes');
-        }`,
-      `
-        function main() {
-          const a = Math.random();
-          // b is seprated from a by one empty line and a comment
-          const b = Math.random();
-          if (a < b) {
-            console.log('Maybe');
-          }
+
           if (a <= b) return;
           console.log('Yes');
         }
+`,
+      `
+        function main() {
+          const a = Math.random();
+
+          // b is seprated from a by one empty line and a comment
+          const b = Math.random();
+
+          if (a < b) {
+            console.log('Maybe');
+          }
+
+          if (a <= b) return;
+          console.log('Yes');
+        }
+
       `
     )
   })
 
-  // test('Suggests inverting nested ifs 1', () => {
-  //   const project = createProjectWithFile(`
-  //     function main() {
-  //       const a = Math.random();
+  test('Suggests inverting nested ifs 1', () => {
+    const project = createProjectWithFile(`
+      function main() {
+        const a = Math.random();
 
-  //       if (a > 0.5) {
-  //         const b = Math.random();
+        if (a > 0.5) {
+          const b = Math.random();
 
-  //         if (b > 0.5) {
-  //           console.log('Yes');
-  //         }
-  //       }
-  //     }
-  //   `)
+          if (b > 0.5) {
+            console.log('Yes');
+          }
+        }
+      }
+    `)
 
-  //   const results = execute(project)
+    const results = execute(project)
 
-  //   expect(results).toHaveLength(2)
-  //   expect(results[0].code).toBe('invert-if')
-  //   expect(results[1].code).toBe('invert-if')
+    expect(results).toHaveLength(2)
+    expect(results[0].code).toBe('invert-if')
+    expect(results[1].code).toBe('invert-if')
 
-  //   // expect(applyFix(project, results[0])).toBe(`
-  //   //   function main() {
-  //   //     const a = Math.random();
+    expect(applyFix(project, results[0])).toBe(`
+      function main() {
+        const a = Math.random();
 
-  //   //     if (a <= 0.5) {
-  //   //       return;
-  //   //     }
+        if (a <= 0.5) return;
 
-  //   //     const b = Math.random();
-  //   //     if (b > 0.5) {
-  //   //       console.log("Yes");
-  //   //     }
-  //   //   }
-  //   // `)
+        const b = Math.random();
 
-  //   // expect(applyFix(project, results[1])).toBe(`
-  //   //   function main() {
-  //   //     const a = Math.random();
+        if (b > 0.5) {
+          console.log('Yes');
+        }
+      }
+    `)
 
-  //   //     if (a > 0.5) {
-  //   //       const b = Math.random();
+    // expect(applyFix(project, results[1])).toBe(`
+    //   function main() {
+    //     const a = Math.random();
 
-  //   //       if (b <= 0.5) {
-  //   //         return;
-  //   //       }
+    //     if (a > 0.5) {
+    //       const b = Math.random();
 
-  //   //       console.log("Yes");
-  //   //     }
-  //   //   }
-  //   // `)
-  // })
+    //       if (b <= 0.5) {
+    //         return;
+    //       }
+
+    //       console.log('Yes');
+    //     }
+    //   }
+    // `)
+  })
 
   // test('Suggests inverting nested ifs 2', () => {
   //   expectInvertIf(`

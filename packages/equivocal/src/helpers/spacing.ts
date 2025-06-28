@@ -24,8 +24,11 @@ export function extractSpacing(code: string) {
         emptyLinesAfter: 0,
       }
     }
-    else {
+    else if (currentSpacing.code) {
       currentSpacing.code += `\n${currentLine}`
+    }
+    else {
+      currentSpacing.code = currentLine
     }
   }
 
@@ -45,9 +48,9 @@ export function applySpacing(code: string, spacings: Spacing[]) {
     const before = result.slice(0, index)
     const after = result.slice(index + spacing.code.length)
     const emptyLines = '\n'.repeat(spacing.emptyLinesAfter)
+
     result = `${before}${spacing.code}${emptyLines}${after}`
   })
 
   return `${result.trimEnd()}\n`
-
 }
