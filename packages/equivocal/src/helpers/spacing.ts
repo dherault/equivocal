@@ -14,10 +14,10 @@ export function extractSpacing(code: string) {
   while (lines.length > 0) {
     const currentLine = lines.shift()!
 
-    if (currentLine.trim() === '') {
+    if (!currentLine.trim()) {
       currentSpacing.emptyLinesAfter++
     }
-    else if (currentSpacing.emptyLinesAfter > 0) {
+    else if (currentSpacing.emptyLinesAfter) {
       spacings.push({ ...currentSpacing })
       currentSpacing = {
         code: currentLine,
@@ -31,5 +31,23 @@ export function extractSpacing(code: string) {
 
   spacings.push(currentSpacing)
 
-  return spacings
+  return spacings.filter(spacing => spacing.code.trim())
+}
+
+export function applySpacing(code: string, spacings: Spacing[]) {
+  let result = code
+
+  spacings.forEach(spacing => {
+    const index = result.indexOf(spacing.code)
+
+    if (index === -1) return
+
+    const before = result.slice(0, index)
+    const after = result.slice(index + spacing.code.length)
+    const emptyLines = '\n'.repeat(spacing.emptyLinesAfter)
+    result = `${before}${spacing.code}${emptyLines}${after}`
+  })
+
+  return `${result.trimEnd()}\n`
+
 }
