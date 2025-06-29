@@ -106,6 +106,7 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
   content = replaceIndentation(content, 4, tabSize)
   content = appendIndentation(content, indentation - tabSize, true)
   content = applySpacing(content, spacings)
+  content = content.trimEnd()
 
   return {
     start,
