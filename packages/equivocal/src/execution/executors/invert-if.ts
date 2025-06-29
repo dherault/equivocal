@@ -80,7 +80,45 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
   const nextStatements = parentSyntaxList.getChildren().filter(child => child.getStart() > ifEnd && ts.isStatement(child)) as ts.Statement[]
   const thenStatements = thenSyntaxList.getChildren().filter(child => ts.isStatement(child)) as ts.Statement[]
 
-  if (!nextStatements.length) nextStatements.push(ts.factory.createReturnStatement())
+  // Find out wether we need to invert with return or continue
+  if (!nextStatements.length) {
+    let { parent } = ifStatement
+
+    while (
+      ![
+        ts.SyntaxKind.FunctionDeclaration,
+        ts.SyntaxKind.WhileStatement,
+        ts.SyntaxKind.DoStatement,
+        ts.SyntaxKind.ForStatement,
+        ts.SyntaxKind.ForInStatement,
+        ts.SyntaxKind.ForOfStatement,
+        ts.SyntaxKind.CaseBlock,
+      ].includes(parent.kind)
+    ) {
+      if (!parent.parent) return
+
+      parent = parent.parent
+    }
+
+    switch (parent.kind) {
+      case ts.SyntaxKind.WhileStatement:
+      case ts.SyntaxKind.DoStatement:
+      case ts.SyntaxKind.ForStatement:
+      case ts.SyntaxKind.ForInStatement:
+      case ts.SyntaxKind.ForOfStatement: {
+        nextStatements.push(ts.factory.createContinueStatement())
+        break
+      }
+      case ts.SyntaxKind.CaseBlock: {
+        nextStatements.push(ts.factory.createBreakStatement())
+        break
+      }
+      default: {
+        nextStatements.push(ts.factory.createReturnStatement())
+        break
+      }
+    }
+  }
 
   const invertedIfStatement = ts.factory.createIfStatement(
     invertBinaryExpression(binaryExpression),
