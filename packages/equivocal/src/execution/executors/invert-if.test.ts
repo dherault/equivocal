@@ -47,6 +47,10 @@ function expectNoInvertIf(code: string) {
 
 describe('Inverting ifs', () => {
 
+  /* ---
+    RETURN
+  --- */
+
   test('Suggests inverting a simple if with return', () => {
     expectInvertIf(
       `
@@ -262,7 +266,7 @@ describe('Inverting ifs', () => {
   })
 
   /* ---
-    NO INVERSION
+    RETURN NO INVERSION
   --- */
 
   test('Does not suggest inverting simple if', () => {
@@ -312,4 +316,43 @@ describe('Inverting ifs', () => {
     `)
   })
 
+  /* ---
+    CONTINUE
+  --- */
+
+  test('Suggests inverting a simple if with continue', () => {
+    expectInvertIf(
+      `
+        function main() {
+          const a = 0;
+
+          while (a < 12) {
+            a++;
+
+            if (a < 6) {
+              console.log('Yes');
+            }
+          }
+        }
+      `,
+      `{
+            a++;
+
+            if (a >= 6) continue;
+            console.log('Yes');
+          }`,
+      `
+        function main() {
+          const a = 0;
+
+          while (a < 12) {
+            a++;
+
+            if (a >= 6) continue;
+            console.log('Yes');
+          }
+        }
+      `
+    )
+  })
 })
