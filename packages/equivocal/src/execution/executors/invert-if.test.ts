@@ -269,20 +269,6 @@ describe('Inverting ifs', () => {
     RETURN NO INVERSION
   --- */
 
-  test('Does not suggest inverting simple if', () => {
-    expectNoInvertIf(`
-      function main() {
-        const a = Math.random()
-
-        if (a > 0.5) {
-          console.log('Yes')
-        }
-
-        console.log('No')
-      }
-    `)
-  })
-
   test('Does not suggest inverting if with else statement', () => {
     expectNoInvertIf(`
       function main() {
@@ -294,6 +280,20 @@ describe('Inverting ifs', () => {
         else {
           console.log('No')
         }
+      }
+    `)
+  })
+
+  test('Does not suggest inverting if with equal amount of following statements', () => {
+    expectNoInvertIf(`
+      function main() {
+        const a = Math.random()
+
+        if (a > 0.5) {
+          console.log('Yes')
+        }
+
+        console.log('No')
       }
     `)
   })
@@ -355,4 +355,95 @@ describe('Inverting ifs', () => {
       `
     )
   })
+
+  /* ---
+    BREAK
+  --- */
+
+  test('Suggests inverting a simple if with break', () => {
+    expectInvertIf(
+      `
+        function main() {
+          const a = 0;
+
+          while (a < 12) {
+            a++;
+
+            if (a < 6) {
+              console.log('Yes');
+              console.log('Yes');
+            }
+
+            break;
+          }
+        }
+      `,
+      `{
+            a++;
+
+            if (a >= 6) break;
+            console.log('Yes');
+            console.log('Yes');
+          }`,
+      `
+        function main() {
+          const a = 0;
+
+          while (a < 12) {
+            a++;
+
+            if (a >= 6) break;
+            console.log('Yes');
+            console.log('Yes');
+          }
+        }
+      `
+    )
+  })
+
+  /* ---
+    THROW
+  --- */
+
+  test('Suggests inverting a simple if with throw', () => {
+    expectInvertIf(
+      `
+        function main() {
+          const a = 0;
+
+          while (a < 12) {
+            a++;
+
+            if (a < 6) {
+              console.log('Yes');
+              console.log('Yes');
+            }
+
+            throw new Error('Error');
+          }
+        }
+      `,
+      `{
+            a++;
+
+            if (a >= 6) throw new Error('Error');
+            console.log('Yes');
+            console.log('Yes');
+          }`,
+      `
+        function main() {
+          const a = 0;
+
+          while (a < 12) {
+            a++;
+
+            if (a >= 6) throw new Error('Error');
+            console.log('Yes');
+            console.log('Yes');
+          }
+        }
+      `
+    )
+  })
+
 })

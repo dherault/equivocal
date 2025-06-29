@@ -21,6 +21,13 @@ export const executor: Executor<IfStatement> = {
   execute,
 }
 
+const RETURN_LIKE_KINDS: ts.SyntaxKind[] = [
+  ts.SyntaxKind.ReturnStatement,
+  ts.SyntaxKind.BreakStatement,
+  ts.SyntaxKind.ContinueStatement,
+  ts.SyntaxKind.ThrowStatement,
+] as const
+
 function execute(project: Project, ifStatement: ts.IfStatement): ResultItem[] | undefined {
   if (ifStatement.elseStatement) return
 
@@ -38,7 +45,7 @@ function execute(project: Project, ifStatement: ts.IfStatement): ResultItem[] | 
   const nextSibling = parentSyntaxListChildren[parentIfIndex + 1]
 
   if (!nextSibling) return
-  if (nextSibling.kind !== ts.SyntaxKind.ReturnStatement) return
+  if (!RETURN_LIKE_KINDS.includes(nextSibling.kind)) return
 
   return createItems(project, ifStatement)
 }
