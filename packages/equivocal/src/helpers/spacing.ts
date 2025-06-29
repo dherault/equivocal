@@ -62,9 +62,10 @@ export function applySpacing(code: string, spacing: Spacing) {
       linesBeforeCount++
     }
 
-    if (linesBeforeCount < counts.before) {
-      const missingLinesCount = counts.before - linesBeforeCount
-      const beforeArray = Array(missingLinesCount).fill('')
+    const missingBeforeLinesCount = counts.before - linesBeforeCount
+
+    if (missingBeforeLinesCount > 0) {
+      const beforeArray = Array(missingBeforeLinesCount).fill('')
 
       lines.splice(startLineIndex, 0, ...beforeArray)
       trimmedLines.splice(startLineIndex, 0, ...beforeArray)
@@ -72,16 +73,17 @@ export function applySpacing(code: string, spacing: Spacing) {
 
     let linesAfterCount = 0
 
-    while (typeof lines[startLineIndex + workingTrimmedLines.length + linesAfterCount] === 'string' && !lines[startLineIndex + workingTrimmedLines.length + linesAfterCount].trim()) {
+    while (typeof lines[startLineIndex + missingBeforeLinesCount + workingTrimmedLines.length + linesAfterCount] === 'string' && !lines[startLineIndex + missingBeforeLinesCount + workingTrimmedLines.length + linesAfterCount].trim()) {
       linesAfterCount++
     }
 
-    if (linesAfterCount < counts.after) {
-      const missingLinesCount = counts.after - linesAfterCount
-      const afterArray = Array(missingLinesCount).fill('')
+    const missingAfterLinesCount = counts.after - linesAfterCount
 
-      lines.splice(startLineIndex + workingTrimmedLines.length, 0, ...afterArray)
-      trimmedLines.splice(startLineIndex + workingTrimmedLines.length, 0, ...afterArray)
+    if (missingAfterLinesCount > 0) {
+      const afterArray = Array(missingAfterLinesCount).fill('')
+
+      lines.splice(startLineIndex + missingBeforeLinesCount + workingTrimmedLines.length, 0, ...afterArray)
+      trimmedLines.splice(startLineIndex + missingBeforeLinesCount + workingTrimmedLines.length, 0, ...afterArray)
     }
   })
 
