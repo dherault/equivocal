@@ -19,27 +19,20 @@ describe('extractSpacing', () => {
         }
       }
     `
-    const expected: Spacing[] = [
-      {
-        code: `      function main() {
-        const a = Math.random();
-        const b = Math.random();`,
-        emptyLinesAfter: 1,
+    const expected: Spacing = {
+      'function main() {\nconst a = Math.random();\nconst b = Math.random();': {
+        before: 1,
+        after: 1,
       },
-      {
-        code: `        if (a <= b) {
-          return;
-        }`,
-        emptyLinesAfter: 1,
+      'if (a <= b) {\nreturn;\n}': {
+        before: 1,
+        after: 1,
       },
-      {
-        code: `        if (a > b) {
-          console.log('Yes');
-        }
-      }`,
-        emptyLinesAfter: 1,
+      'if (a > b) {\nconsole.log(\'Yes\');\n}\n}': {
+        before: 1,
+        after: 1,
       },
-    ]
+    }
 
     expect(extractSpacing(code)).toEqual(expected)
   })
@@ -49,7 +42,7 @@ describe('extractSpacing', () => {
       {
         const a = Math.random();
 
-        // b is seprated from a by one empty line and a comment
+        // b is seprated from a by two empty lines and a comment
         const b = Math.random();
 
         if (a < b) {
@@ -61,31 +54,24 @@ describe('extractSpacing', () => {
         }
       }
     `
-    const expected: Spacing[] = [
-      {
-        code: `      {
-        const a = Math.random();`,
-        emptyLinesAfter: 1,
+    const expected: Spacing = {
+      '{\nconst a = Math.random();': {
+        before: 1,
+        after: 1,
       },
-      {
-        code: `        // b is seprated from a by one empty line and a comment
-        const b = Math.random();`,
-        emptyLinesAfter: 1,
+      '// b is seprated from a by two empty lines and a comment\nconst b = Math.random();': {
+        before: 1,
+        after: 1,
       },
-      {
-        code: `        if (a < b) {
-          console.log('Maybe');
-        }`,
-        emptyLinesAfter: 1,
+      'if (a < b) {\nconsole.log(\'Maybe\');\n}': {
+        before: 1,
+        after: 1,
       },
-      {
-        code: `        if (a > b) {
-          console.log('Yes');
-        }
-      }`,
-        emptyLinesAfter: 1,
+      'if (a > b) {\nconsole.log(\'Yes\');\n}\n}': {
+        before: 1,
+        after: 1,
       },
-    ]
+    }
 
     expect(extractSpacing(code)).toEqual(expected)
   })
@@ -103,27 +89,20 @@ describe('extractSpacing', () => {
         }
       }
     `
-    const spacings: Spacing[] = [
-      {
-        code: `      function main() {
-        const a = Math.random();
-        const b = Math.random();`,
-        emptyLinesAfter: 1,
+    const spacing: Spacing = {
+      'function main() {\nconst a = Math.random();\nconst b = Math.random();': {
+        before: 1,
+        after: 1,
       },
-      {
-        code: `        if (a <= b) {
-          return;
-        }`,
-        emptyLinesAfter: 1,
+      'if (a <= b) {\nreturn;\n}': {
+        before: 1,
+        after: 1,
       },
-      {
-        code: `        if (a > b) {
-          console.log('Yes');
-        }
-      }`,
-        emptyLinesAfter: 1,
+      'if (a > b) {\nconsole.log(\'Yes\');\n}\n}': {
+        before: 1,
+        after: 1,
       },
-    ]
+    }
 
     const expected = `
       function main() {
@@ -138,9 +117,9 @@ describe('extractSpacing', () => {
           console.log('Yes');
         }
       }
-`
+    `
 
-    expect(applySpacing(code, spacings)).toEqual(expected)
+    expect(applySpacing(code, spacing)).toEqual(expected)
   })
 
   test('Extracts and applies spacing on modified code', () => {
@@ -177,9 +156,7 @@ describe('extractSpacing', () => {
         const b = Math.random();
 
         if (a <= b) return;
-
         // This is a comment
-
         // This is another comment
         console.log('Yes');
       }

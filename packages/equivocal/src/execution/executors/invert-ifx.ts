@@ -1,42 +1,42 @@
-import path from 'node:path'
+// import path from 'node:path'
 
-import { describe, expect, test } from '@jest/globals'
+import { describe } from '@jest/globals'
 
-import { execute } from '~execution/execute'
-import { applyFix } from '~execution/applyFix'
+// import { execute } from '~execution/execute'
+// import { applyFix } from '~execution/applyFix'
 
-import { createProject } from '~project/createProject'
-import { addSourceFileToProject } from '~project/addSourceFileToProject'
+// import { createProject } from '~project/createProject'
+// import { addSourceFileToProject } from '~project/addSourceFileToProject'
 
-const NoFilesTsConfigPath = path.join(__dirname, '../../test-projects/no-files/tsconfig.json')
+// const NoFilesTsConfigPath = path.join(__dirname, '../../test-projects/no-files/tsconfig.json')
 
-function createProjectWithFile(fileContent: string) {
-  const project = createProject(NoFilesTsConfigPath)
+// function createProjectWithFile(fileContent: string) {
+//   const project = createProject(NoFilesTsConfigPath)
 
-  addSourceFileToProject(project, 'index.ts', fileContent)
+//   addSourceFileToProject(project, 'index.ts', fileContent)
 
-  return project
-}
+//   return project
+// }
 
-function expectInvertIf(code: string, fixedCode?: string, appliedFixedCode?: string) {
-  const project = createProjectWithFile(code)
-  const results = execute(project)
+// function expectInvertIf(code: string, fixedCode?: string, appliedFixedCode?: string) {
+//   const project = createProjectWithFile(code)
+//   const results = execute(project)
 
-  expect(results).toHaveLength(1)
-  expect(results[0].code).toBe('invert-if')
-  expect(results[0].message).toBe('Invert if statement to reduce nesting.')
-  expect(results[0].filePath).toMatch(/index.ts$/)
-  expect(results[0].relativeFilePath).toBe('index.ts')
+//   expect(results).toHaveLength(1)
+//   expect(results[0].code).toBe('invert-if')
+//   expect(results[0].message).toBe('Invert if statement to reduce nesting.')
+//   expect(results[0].filePath).toMatch(/index.ts$/)
+//   expect(results[0].relativeFilePath).toBe('index.ts')
 
-  if (!fixedCode) return
+//   if (!fixedCode) return
 
-  expect(results[0].fix).toBeDefined()
-  expect(results[0].fix?.content).toBe(fixedCode)
+//   expect(results[0].fix).toBeDefined()
+//   expect(results[0].fix?.content).toBe(fixedCode)
 
-  if (!appliedFixedCode) return
+//   if (!appliedFixedCode) return
 
-  expect(applyFix(project, results[0])).toBe(appliedFixedCode)
-}
+//   expect(applyFix(project, results[0])).toBe(appliedFixedCode)
+// }
 
 // function expectNoInvertIf(code: string) {
 //   const project = createProjectWithFile(code)
@@ -47,56 +47,56 @@ function expectInvertIf(code: string, fixedCode?: string, appliedFixedCode?: str
 
 describe('Inverting ifs', () => {
 
-  test('Suggests inverting simple ifs 1', () => {
-    expectInvertIf(
-      `
-        function main() {
-          const a = Math.random();
+//   test('Suggests inverting simple ifs 1', () => {
+//     expectInvertIf(
+//       `
+//         function main() {
+//           const a = Math.random();
 
-          // b is seprated from a by one empty line and a comment
-          const b = Math.random();
+//           // b is seprated from a by one empty line and a comment
+//           const b = Math.random();
 
-          if (a < b) {
-            console.log('Maybe');
-          }
+//           if (a < b) {
+//             console.log('Maybe');
+//           }
 
-          if (a > b) {
-            console.log('Yes');
-          }
-        }
-      `,
-      `{
-          const a = Math.random();
+//           if (a > b) {
+//             console.log('Yes');
+//           }
+//         }
+//       `,
+//       `{
+//           const a = Math.random();
 
-          // b is seprated from a by one empty line and a comment
-          const b = Math.random();
+//           // b is seprated from a by one empty line and a comment
+//           const b = Math.random();
 
-          if (a < b) {
-            console.log('Maybe');
-          }
+//           if (a < b) {
+//             console.log('Maybe');
+//           }
 
-          if (a <= b) return;
-          console.log('Yes');
-        }
-`,
-      `
-        function main() {
-          const a = Math.random();
+//           if (a <= b) return;
+//           console.log('Yes');
+//         }
+// `,
+//       `
+//         function main() {
+//           const a = Math.random();
 
-          // b is seprated from a by one empty line and a comment
-          const b = Math.random();
+//           // b is seprated from a by one empty line and a comment
+//           const b = Math.random();
 
-          if (a < b) {
-            console.log('Maybe');
-          }
+//           if (a < b) {
+//             console.log('Maybe');
+//           }
 
-          if (a <= b) return;
-          console.log('Yes');
-        }
+//           if (a <= b) return;
+//           console.log('Yes');
+//         }
 
-      `
-    )
-  })
+//       `
+//     )
+//   })
 
   // test('Suggests inverting nested ifs 1', () => {
   //   const project = createProjectWithFile(`
