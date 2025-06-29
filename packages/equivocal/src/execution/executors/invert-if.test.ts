@@ -47,7 +47,7 @@ function expectNoInvertIf(code: string) {
 
 describe('Inverting ifs', () => {
 
-  test('Suggests inverting simple ifs 1', () => {
+  test('Suggests inverting a simple if with return', () => {
     expectInvertIf(
       `
         function main() {
@@ -96,7 +96,7 @@ describe('Inverting ifs', () => {
     )
   })
 
-  test('Suggests inverting nested ifs 1', () => {
+  test('Suggests inverting nested ifs with return 1', () => {
     const project = createProjectWithFile(`
       function main() {
         const a = Math.random();
@@ -143,7 +143,7 @@ describe('Inverting ifs', () => {
     `)
   })
 
-  test('Suggests inverting nested ifs 2', () => {
+  test('Suggests inverting nested ifs with return 2', () => {
     expectInvertIf(`
       function main() {
         const a = Math.random();
@@ -188,7 +188,7 @@ describe('Inverting ifs', () => {
     )
   })
 
-  test('Suggests inverting ifs with following return 1', () => {
+  test('Suggests inverting if with following value return', () => {
     expectInvertIf(`
       function main() {
         const a = Math.random();
@@ -223,7 +223,7 @@ describe('Inverting ifs', () => {
     )
   })
 
-  test('Suggests inverting ifs with following return 2', () => {
+  test('Suggests inverting if with following value return', () => {
     expectInvertIf(`
       function main() {
         const a = Math.random();
@@ -265,7 +265,7 @@ describe('Inverting ifs', () => {
     NO INVERSION
   --- */
 
-  test('Does not suggest inverting simple ifs 1', () => {
+  test('Does not suggest inverting simple if', () => {
     expectNoInvertIf(`
       function main() {
         const a = Math.random()
@@ -279,7 +279,7 @@ describe('Inverting ifs', () => {
     `)
   })
 
-  test('Does not suggest inverting simple ifs 2', () => {
+  test('Does not suggest inverting if with else statement', () => {
     expectNoInvertIf(`
       function main() {
         const a = Math.random()
@@ -294,7 +294,7 @@ describe('Inverting ifs', () => {
     `)
   })
 
-  test('Does not suggest inverting simple ifs 3', () => {
+  test('Does not suggest inverting if with many following statements', () => {
     expectNoInvertIf(`
       function main() {
         const a = Math.random()
