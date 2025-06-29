@@ -1,6 +1,8 @@
 import { describe, expect, test } from '@jest/globals'
 
-import { type Spacing, applySpacing, extractSpacing } from '~helpers/spacing'
+import type { Spacing } from '~types'
+
+import { applySpacing, extractSpacing } from '~helpers/spacing'
 
 describe('extractSpacing', () => {
 

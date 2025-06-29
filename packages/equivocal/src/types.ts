@@ -1,9 +1,17 @@
 import type ts from 'typescript'
 
+/* ---
+  PROJECT
+--- */
+
 export type Project = {
   sourceFiles: ts.SourceFile[]
   printer: ts.Printer
 }
+
+/* ---
+  EXECUTION
+--- */
 
 export type Executor<T extends ts.Node = ts.Node> = {
   code: string
@@ -28,3 +36,13 @@ export type ResultItemFix = {
   end: number
   content: string
 }
+
+/* ---
+  HELPERS
+--- */
+
+// Trimmed lines -> number of empty lines
+export type Spacing = Record<string, {
+  before: number,
+  after: number
+}>

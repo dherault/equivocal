@@ -1,8 +1,4 @@
-// Trimmed lines -> number of empty lines
-export type Spacing = Record<string, {
-  before: number,
-  after: number
-}>
+import type { Spacing } from '~types'
 
 export function extractSpacing(code: string) {
   const lines = code.split('\n')
