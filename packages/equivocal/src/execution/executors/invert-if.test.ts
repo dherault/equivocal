@@ -55,46 +55,46 @@ describe('Inverting ifs', () => {
     expectInvertIf(
       `
         function main() {
-          const a = Math.random();
+          const a = Math.random()
 
           // b is seprated from a by one empty line and a comment
-          const b = Math.random();
+          const b = Math.random()
 
           if (a < b) {
-            console.log('Maybe');
+            console.log('Maybe')
           }
 
           if (a > b) {
-            console.log('Yes');
+            console.log('Yes')
           }
         }
       `,
       `{
-          const a = Math.random();
+          const a = Math.random()
 
           // b is seprated from a by one empty line and a comment
-          const b = Math.random();
+          const b = Math.random()
 
           if (a < b) {
-            console.log('Maybe');
+            console.log('Maybe')
           }
 
-          if (a <= b) return;
-          console.log('Yes');
+          if (a <= b) return
+          console.log('Yes')
         }`,
       `
         function main() {
-          const a = Math.random();
+          const a = Math.random()
 
           // b is seprated from a by one empty line and a comment
-          const b = Math.random();
+          const b = Math.random()
 
           if (a < b) {
-            console.log('Maybe');
+            console.log('Maybe')
           }
 
-          if (a <= b) return;
-          console.log('Yes');
+          if (a <= b) return
+          console.log('Yes')
         }
       `
     )
@@ -103,13 +103,13 @@ describe('Inverting ifs', () => {
   test('Suggests inverting nested ifs with return 1', () => {
     const project = createProjectWithFile(`
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
         if (a > 0.5) {
-          const b = Math.random();
+          const b = Math.random()
 
           if (b > 0.5) {
-            console.log('Yes');
+            console.log('Yes')
           }
         }
       }
@@ -123,25 +123,25 @@ describe('Inverting ifs', () => {
 
     expect(applyFix(project, results[0])).toBe(`
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
-        if (a <= 0.5) return;
-        const b = Math.random();
+        if (a <= 0.5) return
+        const b = Math.random()
         if (b > 0.5) {
-          console.log('Yes');
+          console.log('Yes')
         }
       }
     `)
 
     expect(applyFix(project, results[1])).toBe(`
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
         if (a > 0.5) {
-          const b = Math.random();
+          const b = Math.random()
 
-          if (b <= 0.5) return;
-          console.log('Yes');
+          if (b <= 0.5) return
+          console.log('Yes')
         }
       }
     `)
@@ -150,43 +150,43 @@ describe('Inverting ifs', () => {
   test('Suggests inverting nested ifs with return 2', () => {
     expectInvertIf(`
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
         if (a > 0.5) {
-          const b = Math.random();
+          const b = Math.random()
 
           if (b > 0.5) {
-            console.log('Yes');
+            console.log('Yes')
           }
 
-          console.log('No');
+          console.log('No')
         }
       }
     `,
     `{
-        const a = Math.random();
+        const a = Math.random()
 
-        if (a <= 0.5) return;
-        const b = Math.random();
+        if (a <= 0.5) return
+        const b = Math.random()
 
         if (b > 0.5) {
-          console.log('Yes');
+          console.log('Yes')
         }
 
-        console.log('No');
+        console.log('No')
       }`,
     `
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
-        if (a <= 0.5) return;
-        const b = Math.random();
+        if (a <= 0.5) return
+        const b = Math.random()
 
         if (b > 0.5) {
-          console.log('Yes');
+          console.log('Yes')
         }
 
-        console.log('No');
+        console.log('No')
       }
     `
     )
@@ -195,33 +195,33 @@ describe('Inverting ifs', () => {
   test('Suggests inverting if with following value return', () => {
     expectInvertIf(`
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
         if (a > 0.5) {
-          console.log('Yes');
+          console.log('Yes')
 
-          return true;
+          return true
         }
 
-        return false;
+        return false
       }
     `,
     `{
-        const a = Math.random();
+        const a = Math.random()
 
-        if (a <= 0.5) return false;
-        console.log('Yes');
+        if (a <= 0.5) return false
+        console.log('Yes')
 
-        return true;
+        return true
       }`,
     `
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
-        if (a <= 0.5) return false;
-        console.log('Yes');
+        if (a <= 0.5) return false
+        console.log('Yes')
 
-        return true;
+        return true
       }
     `
     )
@@ -230,36 +230,36 @@ describe('Inverting ifs', () => {
   test('Suggests inverting if with following value return', () => {
     expectInvertIf(`
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
         if (a > 0.5) {
-          console.log('Yes');
-          console.log('Yes');
+          console.log('Yes')
+          console.log('Yes')
 
-          return true;
+          return true
         }
 
-        return false;
+        return false
       }
     `,
     `{
-        const a = Math.random();
+        const a = Math.random()
 
-        if (a <= 0.5) return false;
-        console.log('Yes');
-        console.log('Yes');
+        if (a <= 0.5) return false
+        console.log('Yes')
+        console.log('Yes')
 
-        return true;
+        return true
       }`,
     `
       function main() {
-        const a = Math.random();
+        const a = Math.random()
 
-        if (a <= 0.5) return false;
-        console.log('Yes');
-        console.log('Yes');
+        if (a <= 0.5) return false
+        console.log('Yes')
+        console.log('Yes')
 
-        return true;
+        return true
       }
     `
     )
@@ -324,32 +324,32 @@ describe('Inverting ifs', () => {
     expectInvertIf(
       `
         function main() {
-          const a = 0;
+          const a = 0
 
           while (a < 12) {
-            a++;
+            a++
 
             if (a < 6) {
-              console.log('Yes');
+              console.log('Yes')
             }
           }
         }
       `,
       `{
-            a++;
+            a++
 
-            if (a >= 6) continue;
-            console.log('Yes');
+            if (a >= 6) continue
+            console.log('Yes')
           }`,
       `
         function main() {
-          const a = 0;
+          const a = 0
 
           while (a < 12) {
-            a++;
+            a++
 
-            if (a >= 6) continue;
-            console.log('Yes');
+            if (a >= 6) continue
+            console.log('Yes')
           }
         }
       `
@@ -364,37 +364,37 @@ describe('Inverting ifs', () => {
     expectInvertIf(
       `
         function main() {
-          const a = 0;
+          const a = 0
 
           while (a < 12) {
-            a++;
+            a++
 
             if (a < 6) {
-              console.log('Yes');
-              console.log('Yes');
+              console.log('Yes')
+              console.log('Yes')
             }
 
-            break;
+            break
           }
         }
       `,
       `{
-            a++;
+            a++
 
-            if (a >= 6) break;
-            console.log('Yes');
-            console.log('Yes');
+            if (a >= 6) break
+            console.log('Yes')
+            console.log('Yes')
           }`,
       `
         function main() {
-          const a = 0;
+          const a = 0
 
           while (a < 12) {
-            a++;
+            a++
 
-            if (a >= 6) break;
-            console.log('Yes');
-            console.log('Yes');
+            if (a >= 6) break
+            console.log('Yes')
+            console.log('Yes')
           }
         }
       `
@@ -409,37 +409,37 @@ describe('Inverting ifs', () => {
     expectInvertIf(
       `
         function main() {
-          const a = 0;
+          const a = 0
 
           while (a < 12) {
-            a++;
+            a++
 
             if (a < 6) {
-              console.log('Yes');
-              console.log('Yes');
+              console.log('Yes')
+              console.log('Yes')
             }
 
-            throw new Error('Error');
+            throw new Error('Error')
           }
         }
       `,
       `{
-            a++;
+            a++
 
-            if (a >= 6) throw new Error('Error');
-            console.log('Yes');
-            console.log('Yes');
+            if (a >= 6) throw new Error('Error')
+            console.log('Yes')
+            console.log('Yes')
           }`,
       `
         function main() {
-          const a = 0;
+          const a = 0
 
           while (a < 12) {
-            a++;
+            a++
 
-            if (a >= 6) throw new Error('Error');
-            console.log('Yes');
-            console.log('Yes');
+            if (a >= 6) throw new Error('Error')
+            console.log('Yes')
+            console.log('Yes')
           }
         }
       `
