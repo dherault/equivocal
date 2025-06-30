@@ -15,12 +15,8 @@ export function hasSemicolons(sourceFile: ts.SourceFile) {
     ) {
       const text = node.getFullText(sourceFile).trim()
 
-      if (text.endsWith(';')) {
-        withSemicolon++
-      }
-      else {
-        withoutSemicolon++
-      }
+      if (text.endsWith(';')) withSemicolon++
+      else withoutSemicolon++
     }
 
     ts.forEachChild(node, visit)
@@ -28,7 +24,7 @@ export function hasSemicolons(sourceFile: ts.SourceFile) {
 
   visit(sourceFile)
 
-  return withSemicolon / (withSemicolon + withoutSemicolon) >= 0.5
+  return withSemicolon / (withSemicolon + withoutSemicolon) >= 1 / 2
 }
 
 export function removeSemicolons(code: string) {
