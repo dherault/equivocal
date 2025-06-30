@@ -80,6 +80,7 @@ describe('Inverting ifs', () => {
           }
 
           if (a <= b) return
+
           console.log('Yes')
         }`,
       `
@@ -94,6 +95,7 @@ describe('Inverting ifs', () => {
           }
 
           if (a <= b) return
+
           console.log('Yes')
         }
       `
@@ -126,6 +128,7 @@ describe('Inverting ifs', () => {
         const a = Math.random()
 
         if (a <= 0.5) return
+
         const b = Math.random()
         if (b > 0.5) {
           console.log('Yes')
@@ -141,6 +144,7 @@ describe('Inverting ifs', () => {
           const b = Math.random()
 
           if (b <= 0.5) return
+
           console.log('Yes')
         }
       }
@@ -167,6 +171,7 @@ describe('Inverting ifs', () => {
         const a = Math.random()
 
         if (a <= 0.5) return
+
         const b = Math.random()
 
         if (b > 0.5) {
@@ -180,6 +185,7 @@ describe('Inverting ifs', () => {
         const a = Math.random()
 
         if (a <= 0.5) return
+
         const b = Math.random()
 
         if (b > 0.5) {
@@ -210,6 +216,7 @@ describe('Inverting ifs', () => {
         const a = Math.random()
 
         if (a <= 0.5) return false
+
         console.log('Yes')
 
         return true
@@ -219,6 +226,7 @@ describe('Inverting ifs', () => {
         const a = Math.random()
 
         if (a <= 0.5) return false
+
         console.log('Yes')
 
         return true
@@ -246,6 +254,7 @@ describe('Inverting ifs', () => {
         const a = Math.random()
 
         if (a <= 0.5) return false
+
         console.log('Yes')
         console.log('Yes')
 
@@ -256,6 +265,7 @@ describe('Inverting ifs', () => {
         const a = Math.random()
 
         if (a <= 0.5) return false
+
         console.log('Yes')
         console.log('Yes')
 
@@ -339,6 +349,7 @@ describe('Inverting ifs', () => {
             a++
 
             if (a >= 6) continue
+
             console.log('Yes')
           }`,
       `
@@ -349,6 +360,7 @@ describe('Inverting ifs', () => {
             a++
 
             if (a >= 6) continue
+
             console.log('Yes')
           }
         }
@@ -382,6 +394,7 @@ describe('Inverting ifs', () => {
             a++
 
             if (a >= 6) break
+
             console.log('Yes')
             console.log('Yes')
           }`,
@@ -393,6 +406,7 @@ describe('Inverting ifs', () => {
             a++
 
             if (a >= 6) break
+
             console.log('Yes')
             console.log('Yes')
           }
@@ -427,6 +441,7 @@ describe('Inverting ifs', () => {
             a++
 
             if (a >= 6) throw new Error('Error')
+
             console.log('Yes')
             console.log('Yes')
           }`,
@@ -438,6 +453,7 @@ describe('Inverting ifs', () => {
             a++
 
             if (a >= 6) throw new Error('Error')
+
             console.log('Yes')
             console.log('Yes')
           }

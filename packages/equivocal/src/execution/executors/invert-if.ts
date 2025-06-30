@@ -7,6 +7,7 @@ import type { Executor, Project, ResultItem, ResultItemFix } from '~types'
 
 import { getLineNumber } from '~helpers/getLineNumber'
 import { getFirstChildOfKind } from '~helpers/children'
+import { insertEmptyLine } from '~helpers/insertEmptyLine'
 import { applySpacing, extractSpacing } from '~helpers/spacing'
 import { formatIfStatements } from '~helpers/formatIfStatements'
 import { appendIndentation, detectSyntaxListIndentation, detectTextTabSize, replaceIndentation } from '~helpers/indentation'
@@ -148,7 +149,15 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
     block,
     ifStatement.getSourceFile(),
   )
+  const invertedIfStatementContent = project.printer.printNode(
+    ts.EmitHint.Unspecified,
+    invertedIfStatement,
+    ifStatement.getSourceFile(),
+  )
 
+  content = insertEmptyLine(content, invertedIfStatementContent)
+
+  // Must be before applySpacing, because spacings may not contain semicolons
   if (!sourceFileHasSemicolons) content = removeSemicolons(content)
 
   content = formatIfStatements(content)
