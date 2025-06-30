@@ -10,7 +10,7 @@ import { getFirstChildOfKind } from '~helpers/children'
 import { applySpacing, extractSpacing } from '~helpers/spacing'
 import { formatIfStatements } from '~helpers/formatIfStatements'
 import { appendIndentation, detectSyntaxListIndentation, detectTextTabSize, replaceIndentation } from '~helpers/indentation'
-import { isUsingSemicolons, removeSemicolons } from '~helpers/semicolon'
+import { hasSemicolons, removeSemicolons } from '~helpers/semicolon'
 
 const CODE = 'invert-if'
 const MESSAGE = 'Invert if statement to reduce nesting.'
@@ -138,7 +138,7 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
     invertedIfStatement,
     ...thenStatements,
   ])
-  const hasSemicolons = isUsingSemicolons(ifStatement.getSourceFile())
+  const sourceFileHasSemicolons = hasSemicolons(ifStatement.getSourceFile())
   const tabSize = detectTextTabSize(ifStatement.getSourceFile().getText())
   const indentation = detectSyntaxListIndentation(parentSyntaxList)
   const spacings = extractSpacing(ifStatement.parent.getText())
@@ -149,7 +149,7 @@ function createFix(project: Project, ifStatement: IfStatement): ResultItemFix | 
     ifStatement.getSourceFile(),
   )
 
-  if (!hasSemicolons) content = removeSemicolons(content)
+  if (!sourceFileHasSemicolons) content = removeSemicolons(content)
 
   content = formatIfStatements(content)
   content = replaceIndentation(content, 4, tabSize)

@@ -1,6 +1,6 @@
 import ts from 'typescript'
 
-export function isUsingSemicolons(sourceFile: ts.SourceFile) {
+export function hasSemicolons(sourceFile: ts.SourceFile) {
   let withSemicolon = 0
   let withoutSemicolon = 0
 
